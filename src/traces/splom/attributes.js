@@ -105,20 +105,7 @@ module.exports = {
         ].join(' ')
     }),
 
-    marker: extendFlat({}, colorAttrs('marker'), {
-        symbol: scatterMarkerAttrs.symbol,
-        size: extendFlat({}, scatterMarkerAttrs.size, {editType: 'markerSize'}),
-        sizeref: scatterMarkerAttrs.sizeref,
-        sizemin: scatterMarkerAttrs.sizemin,
-        sizemode: scatterMarkerAttrs.sizemode,
-        opacity: scatterMarkerAttrs.opacity,
-        colorbar: scatterMarkerAttrs.colorbar,
-        line: extendFlat({}, colorAttrs('marker.line'), {
-            width: scatterMarkerLineAttrs.width,
-            editType: 'calc'
-        }),
-        editType: 'calc'
-    }),
+    marker: scatterGlAttrs.marker,
 
     xaxes: makeAxesValObject('x'),
     yaxes: makeAxesValObject('y'),
