@@ -2880,6 +2880,9 @@ function sortAxisCategoriesByValue(axList, gd) {
                 if(fullData.visible !== true) continue;
                 var cd = gd.calcdata[traceIndex];
                 var type = fullData.type;
+
+                if(type === 'histogram') delete fullData._autoBinFinished;
+
                 for(k = 0; k < cd.length; k++) {
                     if(type === 'scatter') {
                         if(ax._id[0] === 'x') {
