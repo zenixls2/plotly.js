@@ -884,19 +884,20 @@ describe('calculated data and points', function() {
             });
 
             var supportedCartesianTraces = cartesianTraces.filter(function(t) {
-                if(t.type === 'scattergl') return false;
-                if(t.type === 'carpet') return false;
-                if(t.type === 'contourcarpet') return false;
-                if(t.type === 'funnel') return false;
+                if(t.type === 'scattergl' || t.type === 'carpet' ||
+                  t.type === 'contourcarpet' || t.type === 'funnel' ||
+                  t.type === 'splom' || t.type === 'histogram2dcontour') return false;
                 return true;
             });
 
             supportedCartesianTraces
-              .map(function(t) { return t.type;})
-              .forEach(function(type) {
-                  it('for trace type ' + type, function(done) {
+              .forEach(function(trace) {
+                  it('for trace type ' + trace.type, function(done) {
+                      var type = trace.type;
                       var data = [7, 2, 3, 7];
                       var cat = ['a', 'b', 'c', 'a'];
+                      var z = [ data, data, data];
+                      var finalOrder = ['b', 'c', 'a'];
 
                       Plotly.newPlot(gd, {
                           data: [{
@@ -905,12 +906,25 @@ describe('calculated data and points', function() {
                               a: cat,
                               b: data,
                               y: data,
-                              z: data,
+                              z: z,
+
                               // For OHLC
                               open: data,
                               close: data,
                               high: data,
-                              low: data
+                              low: data,
+
+                              // For splom
+                              dimensions: [
+                                  {
+                                      label: 'DimensionA',
+                                      values: cat
+                                  },
+                                  {
+                                      label: 'DimensionB',
+                                      values: data
+                                  }
+                              ]
                           }],
                           layout: {
                               xaxis: {
@@ -920,53 +934,12 @@ describe('calculated data and points', function() {
                           }
                       })
                       .then(function(gd) {
-                          expect(gd._fullLayout.xaxis._categories).toEqual(['b', 'c', 'a'], 'for trace ' + type);
+                          expect(gd._fullLayout.xaxis._categories).toEqual(finalOrder, 'for trace ' + type);
                       })
                       .catch(failTest)
                       .then(done);
                   });
               });
-
-            // for(i = 0; i < cartesianTraces.length; i++) {
-            //     var type = cartesianTraces[i].type;
-            //     if(type === 'scattergl') continue;
-            //     if(type === 'carpet') continue;
-            //     if(type === 'contourcarpet') continue;
-            //     if(type === 'funnel') continue;
-            //
-            //     var data = [7, 2, 3, 7];
-            //     var cat = ['a', 'b', 'c', 'a'];
-            //
-            //     it('in trace.type=' + type, function(done) {
-            //         Plotly.newPlot(gd, {
-            //             data: [{
-            //                 type: type,
-            //                 x: cat,
-            //                 a: cat,
-            //                 b: data,
-            //                 y: data,
-            //                 z: data,
-            //                 // For OHLC
-            //                 open: data,
-            //                 close: data,
-            //                 high: data,
-            //                 low: data
-            //             }],
-            //             layout: {
-            //                 xaxis: {
-            //                     type: 'category',
-            //                     categoryorder: 'value ascending'
-            //                 }
-            //             }
-            //         })
-            //         .then(function(gd) {
-            //             console.log(gd.data[0].type);
-            //             expect(gd._fullLayout.xaxis._categories).toEqual(['b', 'c', 'a'], 'for trace ' + type);
-            //         })
-            //         .catch(failTest)
-            //         .then(done);
-            //     })
-            // }
         });
     });
 
