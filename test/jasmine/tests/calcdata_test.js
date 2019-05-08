@@ -3,6 +3,7 @@ var Plotly = require('@lib/index');
 var BADNUM = require('@src/constants/numerical').BADNUM;
 var createGraphDiv = require('../assets/create_graph_div');
 var destroyGraphDiv = require('../assets/destroy_graph_div');
+var failTest = require('../assets/fail_test');
 
 describe('calculated data and points', function() {
     var gd;
@@ -870,7 +871,7 @@ describe('calculated data and points', function() {
             });
         });
 
-        it('should order categories per value per axis', function() {
+        describe('should order categories per value per axis', function() {
             var schema = Plotly.PlotSchema.get();
             var traces = Object.keys(schema.traces);
             var tracesSchema = [];
@@ -882,39 +883,90 @@ describe('calculated data and points', function() {
                 return t.categories.length && t.categories.indexOf('cartesian') !== -1;
             });
 
-            for(i = 0; i < cartesianTraces.length; i++) {
-                var type = cartesianTraces[i].type;
-                if(type === 'scattergl') continue;
-                if(type === 'carpet') continue;
-                if(type === 'contourcarpet') continue;
+            var supportedCartesianTraces = cartesianTraces.filter(function(t) {
+                if(t.type === 'scattergl') return false;
+                if(t.type === 'carpet') return false;
+                if(t.type === 'contourcarpet') return false;
+                if(t.type === 'funnel') return false;
+                return true;
+            });
 
-                var data = [7, 2, 3, 7];
-                var cat = ['a', 'b', 'c', 'a'];
-                Plotly.newPlot(gd, {
-                    data: [{
-                        type: type,
-                        x: cat,
-                        a: cat,
-                        b: data,
-                        y: data,
-                        z: data,
-                        // For OHLC
-                        open: data,
-                        close: data,
-                        high: data,
-                        low: data
-                    }],
-                    layout: {
-                        xaxis: {
-                            type: 'category',
-                            categoryorder: 'value ascending'
-                        }
-                    }
-                })
-                .then(function(gd) {
-                    expect(gd._fullLayout.xaxis._categories).toEqual(['b', 'c', 'a']);
-                });
-            }
+            supportedCartesianTraces
+              .map(function(t) { return t.type;})
+              .forEach(function(type) {
+                  it('for trace type ' + type, function(done) {
+                      var data = [7, 2, 3, 7];
+                      var cat = ['a', 'b', 'c', 'a'];
+
+                      Plotly.newPlot(gd, {
+                          data: [{
+                              type: type,
+                              x: cat,
+                              a: cat,
+                              b: data,
+                              y: data,
+                              z: data,
+                              // For OHLC
+                              open: data,
+                              close: data,
+                              high: data,
+                              low: data
+                          }],
+                          layout: {
+                              xaxis: {
+                                  type: 'category',
+                                  categoryorder: 'value ascending'
+                              }
+                          }
+                      })
+                      .then(function(gd) {
+                          expect(gd._fullLayout.xaxis._categories).toEqual(['b', 'c', 'a'], 'for trace ' + type);
+                      })
+                      .catch(failTest)
+                      .then(done);
+                  });
+              });
+
+            // for(i = 0; i < cartesianTraces.length; i++) {
+            //     var type = cartesianTraces[i].type;
+            //     if(type === 'scattergl') continue;
+            //     if(type === 'carpet') continue;
+            //     if(type === 'contourcarpet') continue;
+            //     if(type === 'funnel') continue;
+            //
+            //     var data = [7, 2, 3, 7];
+            //     var cat = ['a', 'b', 'c', 'a'];
+            //
+            //     it('in trace.type=' + type, function(done) {
+            //         Plotly.newPlot(gd, {
+            //             data: [{
+            //                 type: type,
+            //                 x: cat,
+            //                 a: cat,
+            //                 b: data,
+            //                 y: data,
+            //                 z: data,
+            //                 // For OHLC
+            //                 open: data,
+            //                 close: data,
+            //                 high: data,
+            //                 low: data
+            //             }],
+            //             layout: {
+            //                 xaxis: {
+            //                     type: 'category',
+            //                     categoryorder: 'value ascending'
+            //                 }
+            //             }
+            //         })
+            //         .then(function(gd) {
+            //             console.log(gd.data[0].type);
+            //             expect(gd._fullLayout.xaxis._categories).toEqual(['b', 'c', 'a'], 'for trace ' + type);
+            //         })
+            //         .catch(failTest)
+            //         .then(done);
+            //     })
+            // }
         });
     });
 
