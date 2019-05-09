@@ -2893,11 +2893,11 @@ function sortAxisCategoriesByValue(axList, gd) {
 
                     if(ax._id.charAt(0) === 'x') {
                         cat = cdi.x;
-                        value = cdi.y;
+                        value = cdi.v || cdi.y;
                         orientation = 'h';
                     } else if(ax._id.charAt(0) === 'y') {
                         cat = cdi.y;
-                        value = cdi.x;
+                        value = cdi.v || cdi.x;
                         orientation = 'v';
                     }
 
