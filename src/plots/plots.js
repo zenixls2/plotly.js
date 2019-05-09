@@ -2934,17 +2934,25 @@ function sortAxisCategoriesByValue(axList, gd) {
                     aggFn = function(a, b) { return a + b;};
             }
 
+            ax._categoriesValue = categoriesValue;
+
+            var categoriesAggregatedValue = [];
             for(j = 0; j < categoriesValue.length; j++) {
-                categoriesValue[j][1] = Lib.aggNums(aggFn, null, categoriesValue[j][1]);
+                categoriesAggregatedValue.push([
+                    categoriesValue[j][0],
+                    Lib.aggNums(aggFn, null, categoriesValue[j][1])
+                ]);
             }
 
             // Sort by aggregated value
-            categoriesValue.sort(function(a, b) {
+            categoriesAggregatedValue.sort(function(a, b) {
                 return a[1] - b[1];
             });
 
+            ax._categoriesAggregatedValue = categoriesAggregatedValue;
+
             // Set new category order
-            ax._initialCategories = categoriesValue.map(function(c) {
+            ax._initialCategories = categoriesAggregatedValue.map(function(c) {
                 return c[0];
             });
 
