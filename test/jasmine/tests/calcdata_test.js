@@ -895,10 +895,17 @@ describe('calculated data and points', function() {
 
             var cat = ['a', 'b', 'c'];
             var data = [7, 2, 3];
-            var z = [ data, [0, 0, 0], [0, 0, 0]];
 
-            var baseMock = {
-                data: [{
+            function makeData(cat, data) {
+                var measure = [];
+                var zeros = [];
+                for(var j = 0; j < data.length; j++) {
+                    measure.push('absolute');
+                    zeros.push(0);
+                }
+                var z = [ data, zeros, zeros];
+
+                return Lib.extendDeep({}, {
                     x: cat,
                     a: cat,
 
@@ -913,7 +920,7 @@ describe('calculated data and points', function() {
                     low: data,
 
                     // For waterfall
-                    measure: ['absolute', 'absolute', 'absolute'],
+                    measure: measure,
 
                     // For splom
                     dimensions: [
@@ -926,7 +933,11 @@ describe('calculated data and points', function() {
                             values: data
                         }
                     ]
-                }],
+                });
+            }
+
+            var baseMock = {
+                data: [makeData(cat, data)],
                 layout: {
                     xaxis: {
                         type: 'category'
@@ -952,7 +963,7 @@ describe('calculated data and points', function() {
                               mock.data[0].y.push(7);
                           }
 
-                          Plotly.newPlot(gd, mock)
+                          Plotly.plot(gd, mock)
                           .then(function(gd) {
                               expect(gd._fullLayout.xaxis._categories).toEqual(finalOrder, 'for trace ' + type);
                           })
@@ -974,10 +985,44 @@ describe('calculated data and points', function() {
 
                       Plotly.newPlot(gd, mock)
                       .then(function(gd) {
-                          var agg = [['b', 2], ['c', 3], ['a', 7]];
-                          if(type === 'ohlc' || type === 'candlestick') agg = [['b', 4], ['c', 6], ['a', 14]];
-                          if(type.match(/histogram/)) agg = [['b', 1], ['c', 1], ['a', 2]];
-                          expect(gd._fullLayout.xaxis._categoriesAggregatedValue).toEqual(agg);
+                          var expectedAgg = [['a', 7], ['b', 2], ['c', 3]];
+                          if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 14], ['b', 4], ['c', 6]];
+                          if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
+                              return a[0] > b[0];
+                          });
+                          expect(agg).toEqual(expectedAgg);
+                      })
+                      .catch(failTest)
+                      .then(done);
+                  });
+
+                  it('aggregates values per category across multiple trace type ' + trace.type, function(done) {
+                      var type = trace.type;
+                      var mock = Lib.extendDeep({}, baseMock);
+                      mock.data[0].type = type;
+                      mock.layout.xaxis.categoryorder = 'value ascending';
+
+                      var data2 = [5, 4, 2];
+                      mock.data.push(makeData(cat, data2));
+                      mock.data[1].type = type;
+
+                      if(type.match(/histogram/)) {
+                          mock.data[0].x.push('a');
+                          mock.data[0].y.push(7);
+                          mock.data[1].x.push('a');
+                          mock.data[1].y.push(7);
+                      }
+
+                      Plotly.newPlot(gd, mock)
+                      .then(function(gd) {
+                          var expectedAgg = [['a', data[0] + data2[0]], ['b', data[1] + data2[1]], ['c', data[2] + data2[2]]];
+                          if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
+                          if(type.match(/histogram/)) expectedAgg = [['a', 4], ['b', 2], ['c', 2]];
+                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
+                              return a[0] > b[0];
+                          });
+                          expect(agg).toEqual(expectedAgg);
                       })
                       .catch(failTest)
                       .then(done);

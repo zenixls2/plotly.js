@@ -2892,11 +2892,11 @@ function sortAxisCategoriesByValue(axList, gd) {
                     var cat, value, orientation;
 
                     if(ax._id.charAt(0) === 'x') {
-                        cat = cdi.x;
+                        cat = cdi.p + 1 ? cdi.p : cdi.x;
                         value = cdi.v || cdi.y;
                         orientation = 'h';
                     } else if(ax._id.charAt(0) === 'y') {
-                        cat = cdi.y;
+                        cat = cdi.p + 1 ? cdi.p : cdi.y;
                         value = cdi.v || cdi.x;
                         orientation = 'v';
                     }
