@@ -4,6 +4,7 @@ var BADNUM = require('@src/constants/numerical').BADNUM;
 var createGraphDiv = require('../assets/create_graph_div');
 var destroyGraphDiv = require('../assets/destroy_graph_div');
 var failTest = require('../assets/fail_test');
+var Lib = require('@src/lib');
 
 describe('calculated data and points', function() {
     var gd;
@@ -871,7 +872,7 @@ describe('calculated data and points', function() {
             });
         });
 
-        describe('should order categories per value per axis', function() {
+        describe('ordering tests for categories', function() {
             var schema = Plotly.PlotSchema.get();
             var traces = Object.keys(schema.traces);
             var tracesSchema = [];
@@ -883,58 +884,100 @@ describe('calculated data and points', function() {
                 return t.categories.length && t.categories.indexOf('cartesian') !== -1;
             });
 
+            var excludedTraces = [
+                'carpet', 'contourcarpet', 'splom', 'funnel',
+                // TODO: add support for the following
+                'scattergl', 'histogram2dcontour'
+            ];
             var supportedCartesianTraces = cartesianTraces.filter(function(t) {
-                if(t.type === 'scattergl' || t.type === 'carpet' ||
-                  t.type === 'contourcarpet' || t.type === 'funnel' ||
-                  t.type === 'splom' || t.type === 'histogram2dcontour') return false;
-                return true;
+                if(excludedTraces.indexOf(t.type) === -1) return true;
             });
+
+            var cat = ['a', 'b', 'c'];
+            var data = [7, 2, 3];
+            var z = [ data, [0, 0, 0], [0, 0, 0]];
+
+            var baseMock = {
+                data: [{
+                    x: cat,
+                    a: cat,
+
+                    b: data,
+                    y: data,
+                    z: z,
+
+                    // For OHLC
+                    open: data,
+                    close: data,
+                    high: data,
+                    low: data,
+
+                    // For waterfall
+                    measure: ['absolute', 'absolute', 'absolute'],
+
+                    // For splom
+                    dimensions: [
+                        {
+                            label: 'DimensionA',
+                            values: cat
+                        },
+                        {
+                            label: 'DimensionB',
+                            values: data
+                        }
+                    ]
+                }],
+                layout: {
+                    xaxis: {
+                        type: 'category'
+                    }
+                }
+            };
 
             supportedCartesianTraces
               .forEach(function(trace) {
-                  it('for trace type ' + trace.type, function(done) {
-                      var type = trace.type;
-                      var data = [7, 2, 3, 7];
-                      var cat = ['a', 'b', 'c', 'a'];
-                      var z = [ data, data, data];
-                      var finalOrder = ['b', 'c', 'a'];
+                  ['value ascending', 'value descending'].forEach(function(categoryorder) {
+                      it('sort by ' + categoryorder + ' for trace type ' + trace.type, function(done) {
+                          var type = trace.type;
+                          var mock = Lib.extendDeep({}, baseMock);
+                          mock.data[0].type = type;
+                          mock.layout.xaxis.categoryorder = categoryorder;
 
-                      Plotly.newPlot(gd, {
-                          data: [{
-                              type: type,
-                              x: cat,
-                              a: cat,
-                              b: data,
-                              y: data,
-                              z: z,
+                          // Set ordering
+                          var finalOrder = ['b', 'c', 'a'];
+                          if(categoryorder === 'value descending') finalOrder.reverse();
 
-                              // For OHLC
-                              open: data,
-                              close: data,
-                              high: data,
-                              low: data,
-
-                              // For splom
-                              dimensions: [
-                                  {
-                                      label: 'DimensionA',
-                                      values: cat
-                                  },
-                                  {
-                                      label: 'DimensionB',
-                                      values: data
-                                  }
-                              ]
-                          }],
-                          layout: {
-                              xaxis: {
-                                  type: 'category',
-                                  categoryorder: 'value ascending'
-                              }
+                          if(type.match(/histogram/)) {
+                              mock.data[0].x.push('a');
+                              mock.data[0].y.push(7);
                           }
-                      })
+
+                          Plotly.newPlot(gd, mock)
+                          .then(function(gd) {
+                              expect(gd._fullLayout.xaxis._categories).toEqual(finalOrder, 'for trace ' + type);
+                          })
+                          .catch(failTest)
+                          .then(done);
+                      });
+                  });
+
+                  it('aggregates values per category for trace type ' + trace.type, function(done) {
+                      var type = trace.type;
+                      var mock = Lib.extendDeep({}, baseMock);
+                      mock.data[0].type = type;
+                      mock.layout.xaxis.categoryorder = 'value ascending';
+
+                      if(type.match(/histogram/)) {
+                          mock.data[0].x.push('a');
+                          mock.data[0].y.push(7);
+                      }
+
+                      Plotly.newPlot(gd, mock)
                       .then(function(gd) {
-                          expect(gd._fullLayout.xaxis._categories).toEqual(finalOrder, 'for trace ' + type);
+                          var agg = [['b', 2], ['c', 3], ['a', 7]];
+                          if(type === 'ohlc' || type === 'candlestick') agg = [['b', 4], ['c', 6], ['a', 14]];
+                          if(type.match(/histogram/)) agg = [['b', 1], ['c', 1], ['a', 2]];
+                          expect(gd._fullLayout.xaxis._categoriesAggregatedValue).toEqual(agg);
                       })
                       .catch(failTest)
                       .then(done);
