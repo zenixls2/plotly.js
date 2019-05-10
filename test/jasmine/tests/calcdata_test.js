@@ -872,7 +872,7 @@ describe('calculated data and points', function() {
             });
         });
 
-        describe('ordering tests for categories', function() {
+        describe('by value', function() {
             var schema = Plotly.PlotSchema.get();
             var traces = Object.keys(schema.traces);
             var tracesSchema = [];
@@ -885,7 +885,7 @@ describe('calculated data and points', function() {
             });
 
             var excludedTraces = [
-                'carpet', 'contourcarpet', 'splom',
+                'carpet', 'contourcarpet',
                 // TODO: add support for the following
                 'scattergl', 'histogram2dcontour'
             ];
@@ -941,7 +941,7 @@ describe('calculated data and points', function() {
             supportedCartesianTraces
               .forEach(function(trace) {
                   ['value ascending', 'value descending'].forEach(function(categoryorder) {
-                      it('sort by ' + categoryorder + ' for trace type ' + trace.type, function(done) {
+                      it('sorts ' + trace.type + ' by ' + categoryorder, function(done) {
                           var baseMock = {
                               data: [makeData(trace.type, cat, data)],
                               layout: {
@@ -971,7 +971,7 @@ describe('calculated data and points', function() {
                       });
                   });
 
-                  it('aggregates values per category for trace type ' + trace.type, function(done) {
+                  it('aggregates all values in trace type ' + trace.type, function(done) {
                       var type = trace.type;
                       var baseMock = {
                           data: [makeData(trace.type, cat, data)],
@@ -1003,7 +1003,7 @@ describe('calculated data and points', function() {
                       .then(done);
                   });
 
-                  it('aggregates values per category across multiple trace type ' + trace.type, function(done) {
+                  it('aggregates all values across multiple traces of type ' + trace.type, function(done) {
                       var type = trace.type;
                       var baseMock = {
                           data: [makeData(type, cat, data)],
@@ -1041,7 +1041,7 @@ describe('calculated data and points', function() {
                       .then(done);
                   });
 
-                  it('aggregates minimum values per category across multiple trace type ' + trace.type, function(done) {
+                  it('finds the minimum value per category across multiple traces of type ' + trace.type, function(done) {
                       var type = trace.type;
                       var baseMock = {
                           data: [makeData(trace.type, cat, data)],
@@ -1081,7 +1081,7 @@ describe('calculated data and points', function() {
                       .then(done);
                   });
 
-                  it('aggregates maximum values per category across multiple trace type ' + trace.type, function(done) {
+                  it('finds the maximum value per category across multiple traces of type ' + trace.type, function(done) {
                       var type = trace.type;
                       var baseMock = {
                           data: [makeData(trace.type, cat, data)],

@@ -2889,35 +2889,54 @@ function sortAxisCategoriesByValue(axList, gd) {
                 var cd = gd.calcdata[traceIndex];
                 for(k = 0; k < cd.length; k++) {
                     var cdi = cd[k];
-                    var cat, value, orientation;
+                    var cat, catIndex, value, orientation;
 
-                    if(ax._id.charAt(0) === 'x') {
-                        cat = cdi.p + 1 ? cdi.p : cdi.x;
-                        value = cdi.s || cdi.v || cdi.y;
-                        // orientation = 'h';
-                    } else if(ax._id.charAt(0) === 'y') {
-                        cat = cdi.p + 1 ? cdi.p : cdi.y;
-                        value = cdi.s || cdi.v || cdi.x;
-                        // orientation = 'v';
-                    }
-                    orientation = fullData.orientation || 'v';
+                    // Collect values across dimensions
+                    if(fullData.type === 'splom') {
+                        // Find which dimension the current axis is mapped
+                        var currentDimensionIndex = cdi.trace[ax._id.charAt(0) + 'axes'].indexOf(ax._id);
 
-                    var twoDim = false;
-                    if(cdi.hasOwnProperty('z')) {
-                        value = cdi.z;
-                        twoDim = true;
-                    }
+                        var categories = cdi.trace.dimensions[currentDimensionIndex].values;
+                        for(l = 0; l < categories.length; l++) {
+                            cat = categories[l];
+                            catIndex = ax._categoriesMap[cat];
 
-                    if(twoDim) {
-                        for(l = 0; l < value.length; l++) {
-                            for(o = 0; o < value[l].length; o++) {
-                                var catIndex = orientation === 'v' ? o : l;
-                                if(catIndex > categoriesValue.length - 1) continue;
-                                categoriesValue[catIndex][1].push(value[l][o]);
+                            // Collect values over all dimensions
+                            for(o = 0; o < cdi.trace.dimensions.length; o++) {
+                                if(o === currentDimensionIndex) continue;
+                                var dimension = cdi.trace.dimensions[o];
+                                categoriesValue[catIndex][1].push(dimension.values[l]);
                             }
                         }
                     } else {
-                        categoriesValue[cat][1].push(value);
+                        if(ax._id.charAt(0) === 'x') {
+                            cat = cdi.p + 1 ? cdi.p : cdi.x;
+                            value = cdi.s || cdi.v || cdi.y;
+                            // orientation = 'h';
+                        } else if(ax._id.charAt(0) === 'y') {
+                            cat = cdi.p + 1 ? cdi.p : cdi.y;
+                            value = cdi.s || cdi.v || cdi.x;
+                            // orientation = 'v';
+                        }
+                        orientation = fullData.orientation || 'v';
+
+                        var twoDim = false;
+                        if(cdi.hasOwnProperty('z')) {
+                            value = cdi.z;
+                            twoDim = true;
+                        }
+
+                        if(twoDim) {
+                            for(l = 0; l < value.length; l++) {
+                                for(o = 0; o < value[l].length; o++) {
+                                    catIndex = orientation === 'v' ? o : l;
+                                    if(catIndex > categoriesValue.length - 1) continue;
+                                    categoriesValue[catIndex][1].push(value[l][o]);
+                                }
+                            }
+                        } else {
+                            categoriesValue[cat][1].push(value);
+                        }
                     }
                 }
             }
