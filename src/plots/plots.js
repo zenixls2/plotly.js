@@ -2893,7 +2893,7 @@ function sortAxisCategoriesByValue(axList, gd) {
 
                     // Collect values across dimensions
                     if(fullData.type === 'splom') {
-                        // Find which dimension the current axis is mapped
+                        // Find which dimension the current axis is representing
                         var currentDimensionIndex = cdi.trace[ax._id.charAt(0) + 'axes'].indexOf(ax._id);
 
                         var categories = cdi.trace.dimensions[currentDimensionIndex].values;
@@ -2901,12 +2901,28 @@ function sortAxisCategoriesByValue(axList, gd) {
                             cat = categories[l];
                             catIndex = ax._categoriesMap[cat];
 
-                            // Collect values over all dimensions
+                            // Collect values over all other dimensions
                             for(o = 0; o < cdi.trace.dimensions.length; o++) {
                                 if(o === currentDimensionIndex) continue;
                                 var dimension = cdi.trace.dimensions[o];
                                 categoriesValue[catIndex][1].push(dimension.values[l]);
                             }
+                        }
+                    } else if(fullData.type === 'scattergl') {
+                        // TODO: FIXME sorting scattergl breaks
+                        for(l = 0; l < cdi.t.x.length; l++) {
+                            if(ax._id.charAt(0) === 'x') {
+                                cat = cdi.t.x[l];
+                                catIndex = cat;
+                                value = cdi.t.y[l];
+                            }
+
+                            if(ax._id.charAt(0) === 'y') {
+                                cat = cdi.t.y[l];
+                                catIndex = cat;
+                                value = cdi.t.x[l];
+                            }
+                            categoriesValue[catIndex][1].push(value);
                         }
                     } else {
                         if(ax._id.charAt(0) === 'x') {
