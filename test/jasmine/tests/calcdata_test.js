@@ -944,12 +944,7 @@ describe('calculated data and points', function() {
                       it('sorts ' + trace.type + ' by ' + categoryorder, function(done) {
                           var baseMock = {
                               data: [makeData(trace.type, cat, data)],
-                              layout: {
-                                  xaxis: {
-                                      type: 'category',
-                                      categoryorder: categoryorder
-                                  }
-                              }
+                              layout: { xaxis: { type: 'category', categoryorder: categoryorder}}
                           };
                           var mock = Lib.extendDeep({}, baseMock);
 
@@ -971,154 +966,97 @@ describe('calculated data and points', function() {
                       });
                   });
 
+                  function checkAggregatedValue(baseMock, expectedAgg, done) {
+                      var mock = Lib.extendDeep({}, baseMock);
+
+                      if(mock.data[0].type.match(/histogram/)) {
+                          for(i = 0; i < mock.data.length; i++) {
+                              mock.data[i].x.push('a');
+                              mock.data[i].y.push(7);
+                          }
+                      }
+
+                      Plotly.newPlot(gd, mock)
+                      .then(function(gd) {
+                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
+                              return a[0] > b[0];
+                          });
+                          expect(agg).toEqual(expectedAgg);
+                      })
+                      .catch(failTest)
+                      .then(done);
+                  }
+
                   it('aggregates all values in trace type ' + trace.type, function(done) {
-                      var type = trace.type;
                       var baseMock = {
                           data: [makeData(trace.type, cat, data)],
-                          layout: {
-                              xaxis: {
-                                  type: 'category',
-                                  categoryorder: 'value ascending'
-                              }
-                          }
+                          layout: { xaxis: { type: 'category', categoryorder: 'value ascending'}}
                       };
-                      var mock = Lib.extendDeep({}, baseMock);
+                      var expectedAgg = [['a', 7], ['b', 2], ['c', 3]];
+                      if(trace.type === 'ohlc' || trace.type === 'candlestick') expectedAgg = [['a', 14], ['b', 4], ['c', 6]];
+                      if(trace.type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
 
-                      if(type.match(/histogram/)) {
-                          mock.data[0].x.push('a');
-                          mock.data[0].y.push(7);
-                      }
-
-                      Plotly.newPlot(gd, mock)
-                      .then(function(gd) {
-                          var expectedAgg = [['a', 7], ['b', 2], ['c', 3]];
-                          if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 14], ['b', 4], ['c', 6]];
-                          if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
-                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
-                              return a[0] > b[0];
-                          });
-                          expect(agg).toEqual(expectedAgg);
-                      })
-                      .catch(failTest)
-                      .then(done);
+                      checkAggregatedValue(baseMock, expectedAgg, done);
                   });
 
-                  it('aggregates all values across multiple traces of type ' + trace.type, function(done) {
+                  it('aggregates sum values across multiple traces of type ' + trace.type, function(done) {
                       var type = trace.type;
-                      var baseMock = {
-                          data: [makeData(type, cat, data)],
-                          layout: {
-                              xaxis: {
-                                  type: 'category',
-                                  categoryorder: 'value ascending'
-                              }
-                          }
-                      };
-                      var mock = Lib.extendDeep({}, baseMock);
-
                       var data2 = [5, 4, 2];
-                      mock.data.push(makeData(type, cat, data2));
-                      mock.data[1].type = type;
+                      var baseMock = {
+                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
+                          layout: { xaxis: { type: 'category', categoryorder: 'value ascending'}}
+                      };
+                      var expectedAgg = [['a', data[0] + data2[0]], ['b', data[1] + data2[1]], ['c', data[2] + data2[2]]];
+                      if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
+                      if(type.match(/histogram/)) expectedAgg = [['a', 4], ['b', 2], ['c', 2]];
 
-                      if(type.match(/histogram/)) {
-                          mock.data[0].x.push('a');
-                          mock.data[0].y.push(7);
-                          mock.data[1].x.push('a');
-                          mock.data[1].y.push(7);
-                      }
+                      checkAggregatedValue(baseMock, expectedAgg, done);
+                  });
 
-                      Plotly.newPlot(gd, mock)
-                      .then(function(gd) {
-                          var expectedAgg = [['a', data[0] + data2[0]], ['b', data[1] + data2[1]], ['c', data[2] + data2[2]]];
-                          if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
-                          if(type.match(/histogram/)) expectedAgg = [['a', 4], ['b', 2], ['c', 2]];
-                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
-                              return a[0] > b[0];
-                          });
-                          expect(agg).toEqual(expectedAgg);
-                      })
-                      .catch(failTest)
-                      .then(done);
+                  it('aggregates sum values across visible traces of type ' + trace.type, function(done) {
+                      var type = trace.type;
+                      var data2 = [5, 4, 2];
+                      var baseMock = {
+                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
+                          layout: { xaxis: { type: 'category', categoryorder: 'value ascending'}}
+                      };
+                      // Hide second trace
+                      baseMock.data[1].visible = 'legendonly';
+                      var expectedAgg = [['a', data[0]], ['b', data[1]], ['c', data[2]]];
+                      if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
+                      if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+
+                      checkAggregatedValue(baseMock, expectedAgg, done);
                   });
 
                   it('finds the minimum value per category across multiple traces of type ' + trace.type, function(done) {
                       var type = trace.type;
+                      var data2 = [5, 4, 2];
                       var baseMock = {
-                          data: [makeData(trace.type, cat, data)],
-                          layout: {
-                              xaxis: {
-                                  type: 'category',
-                                  categoryorder: 'min ascending'
-                              }
-                          }
+                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
+                          layout: { xaxis: { type: 'category', categoryorder: 'min ascending'}}
                       };
-                      var mock = Lib.extendDeep({}, baseMock);
+                      var expectedAgg = [['a', Math.min(data[0], data2[0])], ['b', Math.min(data[1], data2[1])], ['c', Math.min(data[2], data2[2])]];
+                      // if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
+                      if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
+                      if(type === 'histogram') expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
 
-
-                      var data2 = [5, 4, 1];
-                      mock.data.push(makeData(trace.type, cat, data2));
-                      mock.data[1].type = type;
-
-                      if(type.match(/histogram/)) {
-                          mock.data[0].x.push('a');
-                          mock.data[0].y.push(7);
-                          mock.data[1].x.push('a');
-                          mock.data[1].y.push(7);
-                      }
-
-                      Plotly.newPlot(gd, mock)
-                      .then(function(gd) {
-                          var expectedAgg = [['a', Math.min(data[0], data2[0])], ['b', Math.min(data[1], data2[1])], ['c', Math.min(data[2], data2[2])]];
-                          if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
-                          if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
-                          if(type === 'histogram') expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
-                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
-                              return a[0] > b[0];
-                          });
-                          expect(agg).toEqual(expectedAgg);
-                      })
-                      .catch(failTest)
-                      .then(done);
+                      checkAggregatedValue(baseMock, expectedAgg, done);
                   });
 
                   it('finds the maximum value per category across multiple traces of type ' + trace.type, function(done) {
                       var type = trace.type;
+                      var data2 = [5, 4, 2];
                       var baseMock = {
-                          data: [makeData(trace.type, cat, data)],
-                          layout: {
-                              xaxis: {
-                                  type: 'category',
-                                  categoryorder: 'max ascending'
-                              }
-                          }
+                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
+                          layout: { xaxis: { type: 'category', categoryorder: 'max ascending'}}
                       };
-                      var mock = Lib.extendDeep({}, baseMock);
+                      var expectedAgg = [['a', Math.max(data[0], data2[0])], ['b', Math.max(data[1], data2[1])], ['c', Math.max(data[2], data2[2])]];
+                      if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
+                      // if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
+                      if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
 
-
-                      var data2 = [5, 4, 1];
-                      mock.data.push(makeData(trace.type, cat, data2));
-                      mock.data[1].type = type;
-
-                      if(type.match(/histogram/)) {
-                          mock.data[0].x.push('a');
-                          mock.data[0].y.push(7);
-                          mock.data[1].x.push('a');
-                          mock.data[1].y.push(7);
-                      }
-
-                      Plotly.newPlot(gd, mock)
-                      .then(function(gd) {
-                          var expectedAgg = [['a', Math.max(data[0], data2[0])], ['b', Math.max(data[1], data2[1])], ['c', Math.max(data[2], data2[2])]];
-                          if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
-                          // if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
-                          if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
-                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
-                              return a[0] > b[0];
-                          });
-                          expect(agg).toEqual(expectedAgg);
-                      })
-                      .catch(failTest)
-                      .then(done);
+                      checkAggregatedValue(baseMock, expectedAgg, done);
                   });
               });
         });
