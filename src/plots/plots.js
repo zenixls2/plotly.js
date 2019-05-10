@@ -2893,13 +2893,14 @@ function sortAxisCategoriesByValue(axList, gd) {
 
                     if(ax._id.charAt(0) === 'x') {
                         cat = cdi.p + 1 ? cdi.p : cdi.x;
-                        value = cdi.v || cdi.y;
-                        orientation = 'h';
+                        value = cdi.s || cdi.v || cdi.y;
+                        // orientation = 'h';
                     } else if(ax._id.charAt(0) === 'y') {
                         cat = cdi.p + 1 ? cdi.p : cdi.y;
-                        value = cdi.v || cdi.x;
-                        orientation = 'v';
+                        value = cdi.s || cdi.v || cdi.x;
+                        // orientation = 'v';
                     }
+                    orientation = fullData.orientation || 'v';
 
                     var twoDim = false;
                     if(cdi.hasOwnProperty('z')) {
@@ -2910,7 +2911,7 @@ function sortAxisCategoriesByValue(axList, gd) {
                     if(twoDim) {
                         for(l = 0; l < value.length; l++) {
                             for(o = 0; o < value[l].length; o++) {
-                                var catIndex = orientation === 'h' ? o : l;
+                                var catIndex = orientation === 'v' ? o : l;
                                 if(catIndex > categoriesValue.length - 1) continue;
                                 categoriesValue[catIndex][1].push(value[l][o]);
                             }
