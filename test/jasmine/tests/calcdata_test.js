@@ -1072,7 +1072,7 @@ describe('calculated data and points', function() {
                         var type = trace.type;
                         var data = [7, 2, 3];
                         var data2 = [5, 4, 2];
-                        var baseMock = { data: [makeData(type, cat, data, axId), makeData(type, cat, data2, axId)],layout: {}};
+                        var baseMock = { data: [makeData(type, cat, data, axId), makeData(type, cat, data2, axId)], layout: {}};
                         baseMock.layout[axId] = { type: 'category', categoryorder: 'max ascending'};
 
                         var expectedAgg = [['a', Math.max(data[0], data2[0])], ['b', Math.max(data[1], data2[1])], ['c', Math.max(data[2], data2[2])]];
