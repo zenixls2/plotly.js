@@ -2876,12 +2876,14 @@ function sortAxisCategoriesByValue(axList, gd) {
 
             // Collect values across traces
             for(j = 0; j < ax._traceIndices.length; j++) {
-                // Keep track of traces affected by this function
                 var traceIndex = ax._traceIndices[j];
-                sortByValue.push(traceIndex);
-
                 var fullData = gd._fullData[traceIndex];
+
+                // Skip over invisible traces
                 if(fullData.visible !== true) continue;
+
+                // Keep track of traces affected by this function
+                sortByValue.push(traceIndex);
 
                 var type = fullData.type;
                 if(type === 'histogram') delete fullData._autoBinFinished;
@@ -2889,10 +2891,10 @@ function sortAxisCategoriesByValue(axList, gd) {
                 var cd = gd.calcdata[traceIndex];
                 for(k = 0; k < cd.length; k++) {
                     var cdi = cd[k];
-                    var cat, catIndex, value, orientation;
+                    var cat, catIndex, value;
 
                     // Collect values across dimensions
-                    if(fullData.type === 'splom') {
+                    if(type === 'splom') {
                         // Find which dimension the current axis is representing
                         var currentDimensionIndex = cdi.trace[ax._id.charAt(0) + 'axes'].indexOf(ax._id);
 
@@ -2908,7 +2910,7 @@ function sortAxisCategoriesByValue(axList, gd) {
                                 categoriesValue[catIndex][1].push(dimension.values[l]);
                             }
                         }
-                    } else if(fullData.type === 'scattergl') {
+                    } else if(type === 'scattergl') {
                         // TODO: FIXME sorting scattergl breaks
                         for(l = 0; l < cdi.t.x.length; l++) {
                             if(ax._id.charAt(0) === 'x') {
@@ -2928,13 +2930,10 @@ function sortAxisCategoriesByValue(axList, gd) {
                         if(ax._id.charAt(0) === 'x') {
                             cat = cdi.p + 1 ? cdi.p : cdi.x;
                             value = cdi.s || cdi.v || cdi.y;
-                            // orientation = 'h';
                         } else if(ax._id.charAt(0) === 'y') {
                             cat = cdi.p + 1 ? cdi.p : cdi.y;
                             value = cdi.s || cdi.v || cdi.x;
-                            // orientation = 'v';
                         }
-                        orientation = fullData.orientation || 'v';
 
                         var twoDim = false;
                         if(cdi.hasOwnProperty('z')) {
@@ -2942,16 +2941,24 @@ function sortAxisCategoriesByValue(axList, gd) {
                             twoDim = true;
                         }
 
+                        if(fullData.orientation === 'h') {
+                            cat = cdi.p + 1 ? cdi.p : cdi.x;
+                            value = cdi.s || cdi.v || cdi.y;
+                        }
+
                         if(twoDim) {
                             for(l = 0; l < value.length; l++) {
                                 for(o = 0; o < value[l].length; o++) {
-                                    catIndex = orientation === 'v' ? o : l;
+                                    catIndex = ax._id.charAt(0) === 'y' ? l : o;
                                     if(catIndex > categoriesValue.length - 1) continue;
                                     categoriesValue[catIndex][1].push(value[l][o]);
                                 }
                             }
                         } else {
-                            categoriesValue[cat][1].push(value);
+                            if(!Array.isArray(value)) value = [value];
+                            for(l = 0; l < value.length; l++) {
+                                categoriesValue[cat][1].push(value[l]);
+                            }
                         }
                     }
                 }

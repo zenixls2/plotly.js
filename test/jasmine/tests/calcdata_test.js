@@ -876,7 +876,7 @@ describe('calculated data and points', function() {
             var schema = Plotly.PlotSchema.get();
             var traces = Object.keys(schema.traces);
             var tracesSchema = [];
-            var i;
+            var i, j, k;
             for(i = 0; i < traces.length; i++) {
                 tracesSchema.push(schema.traces[traces[i]]);
             }
@@ -884,29 +884,53 @@ describe('calculated data and points', function() {
                 return t.categories.length && t.categories.indexOf('cartesian') !== -1;
             });
 
+            // excludedTraces are traces that do not support sorting by value
             var excludedTraces = [
                 'carpet', 'contourcarpet',
                 // TODO: add support for the following
                 'scattergl', 'histogram2dcontour'
             ];
+
             var supportedCartesianTraces = cartesianTraces.filter(function(t) {
                 if(excludedTraces.indexOf(t.type) === -1) return true;
             });
 
             var cat = ['a', 'b', 'c'];
-            var data = [7, 2, 3];
 
-            function makeData(type, cat, data) {
+            // oneOrientationTraces are traces for which swapping x/y is not supported
+            var oneOrientationTraces = ['ohlc', 'candlestick'];
+
+            oneOrientationTraces.push('splom'); // TODO: support splom and remove this
+
+            function makeData(type, a, b, axId) {
+                var input = [a, b];
+                var cat = input[axId === 'yaxis' ? 1 : 0];
+                var data = input[axId === 'yaxis' ? 0 : 1];
+
                 var measure = [];
-                var zeros = [];
-                for(var j = 0; j < data.length; j++) {
+                for(j = 0; j < data.length; j++) {
                     measure.push('absolute');
-                    zeros.push(0);
                 }
-                var z = [ data, zeros, zeros];
+
+                var z = Lib.init2dArray(cat.length, data.length);
+                for(j = 0; j < z.length; j++) {
+                    for(k = 0; k < z[j].length; k++) {
+                        z[j][k] = 0;
+                    }
+                }
+                if(axId === 'xaxis') {
+                    for(j = 0; j < b.length; j++) {
+                        z[0][j] = b[j];
+                    }
+                }
+                if(axId === 'yaxis') {
+                    for(j = 0; j < b.length; j++) {
+                        z[j][0] = b[j];
+                    }
+                }
 
                 return Lib.extendDeep({}, {
-                    orientation: 'v',
+                    orientation: axId === 'yaxis' ? 'h' : 'v',
                     type: type,
                     x: cat,
                     a: cat,
@@ -938,127 +962,128 @@ describe('calculated data and points', function() {
                 });
             }
 
-            supportedCartesianTraces
-              .forEach(function(trace) {
-                  ['value ascending', 'value descending'].forEach(function(categoryorder) {
-                      it('sorts ' + trace.type + ' by ' + categoryorder, function(done) {
-                          var baseMock = {
-                              data: [makeData(trace.type, cat, data)],
-                              layout: { xaxis: { type: 'category', categoryorder: categoryorder}}
-                          };
-                          var mock = Lib.extendDeep({}, baseMock);
+            supportedCartesianTraces.forEach(function(trace) {
+                ['xaxis', 'yaxis'].forEach(function(axId) {
+                    if(axId === 'yaxis' && oneOrientationTraces.indexOf(trace.type) !== -1) return;
+                    ['value ascending', 'value descending'].forEach(function(categoryorder) {
+                        it('sorts ' + trace.type + ' by ' + categoryorder, function(done) {
+                            var data = [7, 2, 3];
+                            var baseMock = { data: [makeData(trace.type, cat, data, axId)], layout: {}};
+                            var mock = Lib.extendDeep({}, baseMock);
+                            mock.layout[axId] = { type: 'category', categoryorder: categoryorder};
 
-                          // Set ordering
-                          var finalOrder = ['b', 'c', 'a'];
-                          if(categoryorder === 'value descending') finalOrder.reverse();
+                            // Set ordering
+                            var finalOrder = ['b', 'c', 'a'];
+                            if(categoryorder === 'value descending') finalOrder.reverse();
 
-                          if(trace.type.match(/histogram/)) {
-                              mock.data[0].x.push('a');
-                              mock.data[0].y.push(7);
-                          }
+                            if(trace.type.match(/histogram/)) {
+                                mock.data[0][axId === 'yaxis' ? 'y' : 'x'].push('a');
+                                mock.data[0][axId === 'yaxis' ? 'x' : 'y'].push(7);
+                            }
 
-                          Plotly.plot(gd, mock)
-                          .then(function(gd) {
-                              expect(gd._fullLayout.xaxis._categories).toEqual(finalOrder, 'for trace ' + trace.type);
-                          })
-                          .catch(failTest)
-                          .then(done);
-                      });
-                  });
+                            Plotly.newPlot(gd, mock)
+                            .then(function(gd) {
+                                expect(gd._fullLayout[axId]._categories).toEqual(finalOrder, 'for trace ' + trace.type);
+                            })
+                            .catch(failTest)
+                            .then(done);
+                        });
+                    });
 
-                  function checkAggregatedValue(baseMock, expectedAgg, done) {
-                      var mock = Lib.extendDeep({}, baseMock);
+                    function checkAggregatedValue(baseMock, expectedAgg, done) {
+                        var mock = Lib.extendDeep({}, baseMock);
 
-                      if(mock.data[0].type.match(/histogram/)) {
-                          for(i = 0; i < mock.data.length; i++) {
-                              mock.data[i].x.push('a');
-                              mock.data[i].y.push(7);
-                          }
-                      }
+                        if(mock.data[0].type.match(/histogram/)) {
+                            for(i = 0; i < mock.data.length; i++) {
+                                mock.data[i][axId === 'yaxis' ? 'y' : 'x'].push('a');
+                                mock.data[i][axId === 'yaxis' ? 'x' : 'y'].push(7);
+                            }
+                        }
 
-                      Plotly.newPlot(gd, mock)
-                      .then(function(gd) {
-                          var agg = gd._fullLayout.xaxis._categoriesAggregatedValue.sort(function(a, b) {
-                              return a[0] > b[0];
-                          });
-                          expect(agg).toEqual(expectedAgg);
-                      })
-                      .catch(failTest)
-                      .then(done);
-                  }
+                        Plotly.newPlot(gd, mock)
+                        .then(function(gd) {
+                            var agg = gd._fullLayout[axId]._categoriesAggregatedValue.sort(function(a, b) {
+                                return a[0] > b[0];
+                            });
+                            expect(agg).toEqual(expectedAgg, 'wrong aggregation for ' + axId);
+                        })
+                        .catch(failTest)
+                        .then(done);
+                    }
 
-                  it('aggregates all values in trace type ' + trace.type, function(done) {
-                      var baseMock = {
-                          data: [makeData(trace.type, cat, data)],
-                          layout: { xaxis: { type: 'category', categoryorder: 'value ascending'}}
-                      };
-                      var expectedAgg = [['a', 7], ['b', 2], ['c', 3]];
-                      if(trace.type === 'ohlc' || trace.type === 'candlestick') expectedAgg = [['a', 14], ['b', 4], ['c', 6]];
-                      if(trace.type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+                    it('retrieves values in trace type ' + trace.type, function(done) {
+                        var data = [7, 2, 3];
+                        var baseMock = {data: [makeData(trace.type, cat, data, axId)], layout: {}};
+                        baseMock.layout[axId] = { type: 'category', categoryorder: 'value ascending'};
 
-                      checkAggregatedValue(baseMock, expectedAgg, done);
-                  });
+                        var expectedAgg = [['a', 7], ['b', 2], ['c', 3]];
+                        if(trace.type === 'ohlc' || trace.type === 'candlestick') expectedAgg = [['a', 14], ['b', 4], ['c', 6]];
+                        if(trace.type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
 
-                  it('aggregates sum values across multiple traces of type ' + trace.type, function(done) {
-                      var type = trace.type;
-                      var data2 = [5, 4, 2];
-                      var baseMock = {
-                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
-                          layout: { xaxis: { type: 'category', categoryorder: 'value ascending'}}
-                      };
-                      var expectedAgg = [['a', data[0] + data2[0]], ['b', data[1] + data2[1]], ['c', data[2] + data2[2]]];
-                      if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
-                      if(type.match(/histogram/)) expectedAgg = [['a', 4], ['b', 2], ['c', 2]];
+                        checkAggregatedValue(baseMock, expectedAgg, done);
+                    });
 
-                      checkAggregatedValue(baseMock, expectedAgg, done);
-                  });
+                    it('sum values across traces of type ' + trace.type, function(done) {
+                        var type = trace.type;
+                        var data = [7, 2, 3];
+                        var data2 = [5, 4, 2];
+                        var baseMock = { data: [makeData(type, cat, data, axId), makeData(type, cat, data2, axId)], layout: {}};
+                        baseMock.layout[axId] = { type: 'category', categoryorder: 'value ascending'};
 
-                  it('aggregates sum values across visible traces of type ' + trace.type, function(done) {
-                      var type = trace.type;
-                      var data2 = [5, 4, 2];
-                      var baseMock = {
-                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
-                          layout: { xaxis: { type: 'category', categoryorder: 'value ascending'}}
-                      };
-                      // Hide second trace
-                      baseMock.data[1].visible = 'legendonly';
-                      var expectedAgg = [['a', data[0]], ['b', data[1]], ['c', data[2]]];
-                      if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
-                      if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+                        var expectedAgg = [['a', data[0] + data2[0]], ['b', data[1] + data2[1]], ['c', data[2] + data2[2]]];
+                        if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
+                        if(type.match(/histogram/)) expectedAgg = [['a', 4], ['b', 2], ['c', 2]];
 
-                      checkAggregatedValue(baseMock, expectedAgg, done);
-                  });
+                        checkAggregatedValue(baseMock, expectedAgg, done);
+                    });
 
-                  it('finds the minimum value per category across multiple traces of type ' + trace.type, function(done) {
-                      var type = trace.type;
-                      var data2 = [5, 4, 2];
-                      var baseMock = {
-                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
-                          layout: { xaxis: { type: 'category', categoryorder: 'min ascending'}}
-                      };
-                      var expectedAgg = [['a', Math.min(data[0], data2[0])], ['b', Math.min(data[1], data2[1])], ['c', Math.min(data[2], data2[2])]];
-                      // if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
-                      if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
-                      if(type === 'histogram') expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+                    it('ignores values from traces that are not visible ' + trace.type, function(done) {
+                        var type = trace.type;
+                        var data = [7, 2, 3];
+                        var data2 = [5, 4, 2];
+                        var baseMock = { data: [makeData(type, cat, data, axId), makeData(type, cat, data2, axId)], layout: {}};
+                        baseMock.layout[axId] = { type: 'category', categoryorder: 'value ascending'};
 
-                      checkAggregatedValue(baseMock, expectedAgg, done);
-                  });
+                        // Hide second trace
+                        baseMock.data[1].visible = 'legendonly';
+                        var expectedAgg = [['a', data[0]], ['b', data[1]], ['c', data[2]]];
+                        if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', 2 * expectedAgg[0][1]], ['b', 2 * expectedAgg[1][1]], ['c', 2 * expectedAgg[2][1]]];
+                        if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
 
-                  it('finds the maximum value per category across multiple traces of type ' + trace.type, function(done) {
-                      var type = trace.type;
-                      var data2 = [5, 4, 2];
-                      var baseMock = {
-                          data: [makeData(type, cat, data), makeData(type, cat, data2)],
-                          layout: { xaxis: { type: 'category', categoryorder: 'max ascending'}}
-                      };
-                      var expectedAgg = [['a', Math.max(data[0], data2[0])], ['b', Math.max(data[1], data2[1])], ['c', Math.max(data[2], data2[2])]];
-                      if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
-                      // if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
-                      if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+                        checkAggregatedValue(baseMock, expectedAgg, done);
+                    });
 
-                      checkAggregatedValue(baseMock, expectedAgg, done);
-                  });
-              });
+                    it('finds the minimum value per category across traces of type ' + trace.type, function(done) {
+                        var type = trace.type;
+                        var data = [7, 2, 3];
+                        var data2 = [5, 4, 2];
+                        var baseMock = { data: [makeData(type, cat, data, axId), makeData(type, cat, data2, axId)], layout: {}};
+                        baseMock.layout[axId] = { type: 'category', categoryorder: 'min ascending'};
+
+                        var expectedAgg = [['a', Math.min(data[0], data2[0])], ['b', Math.min(data[1], data2[1])], ['c', Math.min(data[2], data2[2])]];
+                        // if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
+                        if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
+                        if(type === 'histogram') expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+
+                        checkAggregatedValue(baseMock, expectedAgg, done);
+                    });
+
+                    it('finds the maximum value per category across traces of type ' + trace.type, function(done) {
+                        var type = trace.type;
+                        var data = [7, 2, 3];
+                        var data2 = [5, 4, 2];
+                        var baseMock = { data: [makeData(type, cat, data, axId), makeData(type, cat, data2, axId)],layout: {}};
+                        baseMock.layout[axId] = { type: 'category', categoryorder: 'max ascending'};
+
+                        var expectedAgg = [['a', Math.max(data[0], data2[0])], ['b', Math.max(data[1], data2[1])], ['c', Math.max(data[2], data2[2])]];
+                        if(type === 'ohlc' || type === 'candlestick') expectedAgg = [['a', expectedAgg[0][1]], ['b', expectedAgg[1][1]], ['c', expectedAgg[2][1]]];
+                        // if(trace.categories.indexOf('2dMap') !== -1) expectedAgg = [['a', 0], ['b', 0], ['c', 0]];
+                        if(type.match(/histogram/)) expectedAgg = [['a', 2], ['b', 1], ['c', 1]];
+
+                        checkAggregatedValue(baseMock, expectedAgg, done);
+                    });
+                });
+            });
         });
     });
 
