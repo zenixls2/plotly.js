@@ -885,11 +885,9 @@ describe('calculated data and points', function() {
             });
 
             // excludedTraces are traces that do not support sorting by value
-            var excludedTraces = [
-                'carpet', 'contourcarpet',
+            var excludedTraces = [ 'carpet', 'contourcarpet',
                 // TODO: add support for the following
-                'scattergl', 'histogram2dcontour'
-            ];
+                'histogram2dcontour'];
 
             var supportedCartesianTraces = cartesianTraces.filter(function(t) {
                 if(excludedTraces.indexOf(t.type) === -1) return true;
@@ -899,7 +897,6 @@ describe('calculated data and points', function() {
 
             // oneOrientationTraces are traces for which swapping x/y is not supported
             var oneOrientationTraces = ['ohlc', 'candlestick'];
-
             oneOrientationTraces.push('splom'); // TODO: support splom and remove this
 
             function makeData(type, a, b, axId) {

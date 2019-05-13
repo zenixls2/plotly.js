@@ -2911,7 +2911,6 @@ function sortAxisCategoriesByValue(axList, gd) {
                             }
                         }
                     } else if(type === 'scattergl') {
-                        // TODO: FIXME sorting scattergl breaks
                         for(l = 0; l < cdi.t.x.length; l++) {
                             if(ax._id.charAt(0) === 'x') {
                                 cat = cdi.t.x[l];
@@ -2925,6 +2924,11 @@ function sortAxisCategoriesByValue(axList, gd) {
                                 value = cdi.t.x[l];
                             }
                             categoriesValue[catIndex][1].push(value);
+                        }
+                        // must clear scene 'batches', so that 2nd
+                        // _module.calc call starts from scratch
+                        if(cdi.t && cdi.t._scene) {
+                            delete cdi.t._scene.dirty;
                         }
                     } else {
                         if(ax._id.charAt(0) === 'x') {
