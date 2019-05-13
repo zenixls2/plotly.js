@@ -2935,26 +2935,21 @@ function sortAxisCategoriesByValue(axList, gd) {
                             value = cdi.s || cdi.v || cdi.x;
                         }
 
-                        var twoDim = false;
                         if(cdi.hasOwnProperty('z')) {
                             value = cdi.z;
-                            twoDim = true;
-                        }
 
-                        if(fullData.orientation === 'h') {
-                            cat = cdi.p + 1 ? cdi.p : cdi.x;
-                            value = cdi.s || cdi.v || cdi.y;
-                        }
-
-                        if(twoDim) {
                             for(l = 0; l < value.length; l++) {
                                 for(o = 0; o < value[l].length; o++) {
                                     catIndex = ax._id.charAt(0) === 'y' ? l : o;
-                                    if(catIndex > categoriesValue.length - 1) continue;
                                     categoriesValue[catIndex][1].push(value[l][o]);
                                 }
                             }
                         } else {
+                            if(fullData.orientation === 'h') {
+                                cat = cdi.p + 1 ? cdi.p : cdi.x;
+                                value = cdi.s || cdi.v || cdi.y;
+                            }
+
                             if(!Array.isArray(value)) value = [value];
                             for(l = 0; l < value.length; l++) {
                                 categoriesValue[cat][1].push(value[l]);
