@@ -612,6 +612,41 @@ module.exports = function setConvert(ax, fullLayout) {
         }
     };
 
+    // sort the axis (and all the matching ones) by _initialCategories
+    ax.sortByInitialCategories = function() {
+        var affectedTraces = [];
+        var emptyCategories = function() {
+            ax._categories = [];
+            ax._categoriesMap = {};
+        };
+
+        emptyCategories();
+
+        if(ax._initialCategories) {
+            for(var j = 0; j < ax._initialCategories.length; j++) {
+                setCategoryIndex(ax._initialCategories[j]);
+            }
+        }
+
+        affectedTraces = affectedTraces.concat(ax._traceIndices);
+
+        var matchGroups = fullLayout._axisMatchGroups;
+
+        if(matchGroups && matchGroups.length) {
+            for(var i = 0; i < matchGroups.length; i++) {
+                var group = matchGroups[i];
+                for(var axId2 in group) {
+                    if(axId === axId2) continue;
+                    var ax2 = fullLayout[axisIds.id2name(axId2)];
+                    ax2._categories = ax._categories;
+                    ax2._categoriesMap = ax._categoriesMap;
+                    affectedTraces = affectedTraces.concat(ax2._traceIndices);
+                }
+            }
+        }
+        return affectedTraces;
+    };
+
     // Propagate localization into the axis so that
     // methods in Axes can use it w/o having to pass fullLayout
     // Default (non-d3) number formatting uses separators directly

@@ -2859,7 +2859,7 @@ plots.doCalcdata = function(gd, traces) {
 var sortAxisCategoriesByValueRegex = /(value|sum|min|max) (ascending|descending)/;
 
 function sortAxisCategoriesByValue(axList, gd) {
-    var sortByValue = [];
+    var affectedTraces = [];
     var i, j, k, l, o;
     for(i = 0; i < axList.length; i++) {
         var ax = axList[i];
@@ -2881,9 +2881,6 @@ function sortAxisCategoriesByValue(axList, gd) {
 
                 // Skip over invisible traces
                 if(fullData.visible !== true) continue;
-
-                // Keep track of traces affected by this function
-                sortByValue.push(traceIndex);
 
                 var type = fullData.type;
                 if(type === 'histogram') delete fullData._autoBinFinished;
@@ -3003,11 +3000,11 @@ function sortAxisCategoriesByValue(axList, gd) {
                 ax._initialCategories.reverse();
             }
 
-            // Reinitialize axis
-            ax.clearCalc();
+            // Sort all matching axes
+            affectedTraces = ax.sortByInitialCategories();
         }
     }
-    return sortByValue;
+    return affectedTraces;
 }
 
 function setupAxisCategories(axList, fullData) {
