@@ -3001,7 +3001,7 @@ function sortAxisCategoriesByValue(axList, gd) {
             }
 
             // Sort all matching axes
-            affectedTraces = ax.sortByInitialCategories();
+            affectedTraces = affectedTraces.concat(ax.sortByInitialCategories());
         }
     }
     return affectedTraces;

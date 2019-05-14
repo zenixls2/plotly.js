@@ -613,6 +613,7 @@ module.exports = function setConvert(ax, fullLayout) {
     };
 
     // sort the axis (and all the matching ones) by _initialCategories
+    // returns the indices of the traces affected by the reordering
     ax.sortByInitialCategories = function() {
         var affectedTraces = [];
         var emptyCategories = function() {
@@ -630,19 +631,14 @@ module.exports = function setConvert(ax, fullLayout) {
 
         affectedTraces = affectedTraces.concat(ax._traceIndices);
 
-        var matchGroups = fullLayout._axisMatchGroups;
-
-        if(matchGroups && matchGroups.length) {
-            for(var i = 0; i < matchGroups.length; i++) {
-                var group = matchGroups[i];
-                for(var axId2 in group) {
-                    if(axId === axId2) continue;
-                    var ax2 = fullLayout[axisIds.id2name(axId2)];
-                    ax2._categories = ax._categories;
-                    ax2._categoriesMap = ax._categoriesMap;
-                    affectedTraces = affectedTraces.concat(ax2._traceIndices);
-                }
-            }
+        // Propagate to matching axes
+        var group = ax._matchGroup;
+        for(var axId2 in group) {
+            if(axId === axId2) continue;
+            var ax2 = fullLayout[axisIds.id2name(axId2)];
+            ax2._categories = ax._categories;
+            ax2._categoriesMap = ax._categoriesMap;
+            affectedTraces = affectedTraces.concat(ax2._traceIndices);
         }
         return affectedTraces;
     };
