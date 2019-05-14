@@ -2890,7 +2890,7 @@ function sortAxisCategoriesByValue(axList, gd) {
                     var cdi = cd[k];
                     var cat, catIndex, value;
 
-                    // Collect values across dimensions
+                    // If `splom`, collect values across dimensions
                     if(type === 'splom') {
                         // Find which dimension the current axis is representing
                         var currentDimensionIndex = cdi.trace[ax._id.charAt(0) + 'axes'].indexOf(ax._id);
@@ -2907,6 +2907,7 @@ function sortAxisCategoriesByValue(axList, gd) {
                                 categoriesValue[catIndex][1].push(dimension.values[l]);
                             }
                         }
+                    // If `scattergl`, collect all values stashed under cdi.t
                     } else if(type === 'scattergl') {
                         for(l = 0; l < cdi.t.x.length; l++) {
                             if(ax._id.charAt(0) === 'x') {
@@ -2927,6 +2928,7 @@ function sortAxisCategoriesByValue(axList, gd) {
                         if(cdi.t && cdi.t._scene) {
                             delete cdi.t._scene.dirty;
                         }
+                    // For all other 2d cartesian traces
                     } else {
                         if(ax._id.charAt(0) === 'x') {
                             cat = cdi.p + 1 ? cdi.p : cdi.x;
@@ -2936,6 +2938,7 @@ function sortAxisCategoriesByValue(axList, gd) {
                             value = cdi.s || cdi.v || cdi.x;
                         }
 
+                        // If 2dMap, collect values in `z`
                         if(cdi.hasOwnProperty('z')) {
                             value = cdi.z;
 
@@ -2946,11 +2949,6 @@ function sortAxisCategoriesByValue(axList, gd) {
                                 }
                             }
                         } else {
-                            if(fullData.orientation === 'h') {
-                                cat = cdi.p + 1 ? cdi.p : cdi.x;
-                                value = cdi.s || cdi.v || cdi.y;
-                            }
-
                             if(!Array.isArray(value)) value = [value];
                             for(l = 0; l < value.length; l++) {
                                 categoriesValue[cat][1].push(value[l]);
