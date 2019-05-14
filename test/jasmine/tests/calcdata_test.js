@@ -897,7 +897,6 @@ describe('calculated data and points', function() {
 
             // oneOrientationTraces are traces for which swapping x/y is not supported
             var oneOrientationTraces = ['ohlc', 'candlestick'];
-            oneOrientationTraces.push('splom'); // TODO: support splom and remove this
 
             function makeData(type, a, b, axId) {
                 var input = [a, b];
@@ -949,11 +948,11 @@ describe('calculated data and points', function() {
                     dimensions: [
                         {
                             label: 'DimensionA',
-                            values: cat
+                            values: a
                         },
                         {
                             label: 'DimensionB',
-                            values: data
+                            values: b
                         }
                     ]
                 });
@@ -963,7 +962,7 @@ describe('calculated data and points', function() {
                 ['xaxis', 'yaxis'].forEach(function(axId) {
                     if(axId === 'yaxis' && oneOrientationTraces.indexOf(trace.type) !== -1) return;
                     ['value ascending', 'value descending'].forEach(function(categoryorder) {
-                        it('sorts ' + trace.type + ' by ' + categoryorder, function(done) {
+                        it('sorts ' + axId + ' by ' + categoryorder + 'for trace type ' + trace.type, function(done) {
                             var data = [7, 2, 3];
                             var baseMock = { data: [makeData(trace.type, cat, data, axId)], layout: {}};
                             var mock = Lib.extendDeep({}, baseMock);
@@ -980,7 +979,7 @@ describe('calculated data and points', function() {
 
                             Plotly.newPlot(gd, mock)
                             .then(function(gd) {
-                                expect(gd._fullLayout[axId]._categories).toEqual(finalOrder, 'for trace ' + trace.type);
+                                expect(gd._fullLayout[trace.type === 'splom' ? 'xaxis' : axId]._categories).toEqual(finalOrder, 'for trace ' + trace.type);
                             })
                             .catch(failTest)
                             .then(done);
@@ -999,7 +998,7 @@ describe('calculated data and points', function() {
 
                         Plotly.newPlot(gd, mock)
                         .then(function(gd) {
-                            var agg = gd._fullLayout[axId]._categoriesAggregatedValue.sort(function(a, b) {
+                            var agg = gd._fullLayout[mock.data[0].type === 'splom' ? 'xaxis' : axId]._categoriesAggregatedValue.sort(function(a, b) {
                                 return a[0] > b[0];
                             });
                             expect(agg).toEqual(expectedAgg, 'wrong aggregation for ' + axId);

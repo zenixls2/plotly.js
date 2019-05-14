@@ -2895,6 +2895,14 @@ function sortAxisCategoriesByValue(axList, gd) {
                         // Find which dimension the current axis is representing
                         var currentDimensionIndex = cdi.trace[ax._id.charAt(0) + 'axes'].indexOf(ax._id);
 
+                        // Apply logic to associated x axis
+                        if(ax._id.charAt(0) === 'y') {
+                            var associatedXAxis = ax._id.split('');
+                            associatedXAxis[0] = 'x';
+                            associatedXAxis = associatedXAxis.join('');
+                            ax = gd._fullLayout[axisIDs.id2name(associatedXAxis)];
+                        }
+
                         var categories = cdi.trace.dimensions[currentDimensionIndex].values;
                         for(l = 0; l < categories.length; l++) {
                             cat = categories[l];
