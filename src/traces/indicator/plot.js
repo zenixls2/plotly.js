@@ -32,8 +32,8 @@ module.exports = function plot(gd, cdModule) {
 
         var size = fullLayout._size;
         var radius = Math.min(size.w / 2, size.h);
-        var isWide = size.w / 2 > size.h;
-        var verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height / 2;
+        var isWide = !(size.h > radius);
+        var verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
 
         plotGroup.each(function() {
             var number = d3.select(this).selectAll('text.number').data(cd);
@@ -43,8 +43,7 @@ module.exports = function plot(gd, cdModule) {
             number.attr({
                 x: fullLayout.width / 2,
                 y: verticalMargin,
-                'text-anchor': 'middle',
-                'dominant-baseline': isWide ? undefined  : 'middle'
+                'text-anchor': 'middle'
             })
             .style('font-size', Math.min(2 * 0.75 * radius / (cd[0].y.toString().length)))
             .text(cd[0].y);
