@@ -9,9 +9,11 @@
 'use strict';
 
 function calc(gd, trace) {
+    var len = trace.values.length;
     var cd = [];
     cd[0] = {
-        y: trace.values[0]
+        y: trace.values[len - 1],
+        delta: trace.values[len - 1] - (trace.values[len - 2] || 0)
     };
     return cd;
 }
