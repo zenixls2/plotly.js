@@ -2,6 +2,10 @@
   "data": [{
     "type": "indicator",
     "mode": "bignumber",
-    "values": [543]
-  }]
+    "values": [60000]
+  }],
+  "layout": {
+      "width": 300,
+      "height": 300
+  }
 }

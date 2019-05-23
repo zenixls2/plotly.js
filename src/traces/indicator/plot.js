@@ -23,11 +23,19 @@ module.exports = function plot(gd, cdModule) {
         var trace = cd0.trace;
 
         plotGroup.each(function() {
-            var slices = d3.select(this).selectAll('g.slice').data(cd);
-
-            slices.enter().append('g')
-                .classed('slice', true);
-            slices.exit().remove();
+            var number = d3.select(this).selectAll('text.number').data(cd);
+            console.log(cd0);
+            number.enter().append('text')
+                .attr({
+                    x: fullLayout.width / 2,
+                    y: fullLayout.height / 2,
+                    'text-anchor': 'middle'
+                })
+                .style('font-size', fullLayout._size.h)
+                .classed('number', true)
+                .text(cd0.y)
+                // .call(Drawing.font, trace.font);
+            number.exit().remove();
         });
     });
 };

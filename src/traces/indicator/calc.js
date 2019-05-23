@@ -9,7 +9,11 @@
 'use strict';
 
 function calc(gd, trace) {
-    return trace.values[0];
+    var cd = [];
+    cd[0] = {
+        y: trace.values[0]
+    };
+    return cd;
 }
 
 module.exports = {
