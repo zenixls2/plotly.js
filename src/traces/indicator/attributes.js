@@ -8,12 +8,24 @@
 
 'use strict';
 
-var plotAttrs = require('../../plots/attributes');
-var domainAttrs = require('../../plots/domain').attributes;
-var hovertemplateAttrs = require('../../components/fx/hovertemplate_attributes');
+// var plotAttrs = require('../../plots/attributes');
+// var domainAttrs = require('../../plots/domain').attributes;
 
-var extendFlat = require('../../lib/extend').extendFlat;
+// var extendFlat = require('../../lib/extend').extendFlat;
 
 module.exports = {
-    
+    values: {
+        valType: 'data_array',
+        editType: 'calc',
+        description: [
+            'Sets the number to be displayed.'
+        ].join(' ')
+    },
+
+    mode: {
+        valType: 'enumerated',
+        editType: 'calc',
+        values: ['gauge', 'bignumber'],
+        dflt: 'bignumber'
+    }
 };

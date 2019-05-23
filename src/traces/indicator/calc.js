@@ -9,14 +9,9 @@
 'use strict';
 
 function calc(gd, trace) {
-    return true;
-}
-
-function crossTraceCalc(gd) {
-    return true;
+    return trace.values[0];
 }
 
 module.exports = {
-    calc: calc,
-    crossTraceCalc: crossTraceCalc
+    calc: calc
 };

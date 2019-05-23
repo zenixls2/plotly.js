@@ -31,11 +31,8 @@ describe('Indicator defaults', function() {
         return gd._fullData[0];
     }
 
-    it('finds the minimum length of labels & values', function() {
+    it('to bignumber mode', function() {
         var out = _supply({type: 'indicator', values: [1, 2, 3]});
-        expect(out._length).toBe(2);
-
-        out = _supply({type: 'indicator', values: [1, 2]});
-        expect(out._length).toBe(2);
+        expect(out.mode).toBe('bignumber');
     });
 });

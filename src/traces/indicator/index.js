@@ -20,7 +20,6 @@ module.exports = {
     supplyLayoutDefaults: require('./layout_defaults'),
 
     calc: require('./calc').calc,
-    crossTraceCalc: require('./calc').crossTraceCalc,
 
     plot: require('./plot'),
     style: require('./style'),
