@@ -20,4 +20,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
 
     coerce('mode');
     coerce('values');
+
+    coerce('min');
+    coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
 };

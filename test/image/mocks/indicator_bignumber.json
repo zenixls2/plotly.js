@@ -1,11 +1,12 @@
 {
   "data": [{
     "type": "indicator",
-    "mode": "bignumber",
-    "values": [400, 450]
+    "values": [400, 450],
+    "max": 500
   }],
   "layout": {
-      "width": 300,
-      "height": 300
+      "width": 200,
+      "height": 200,
+      "margin": {"t": 10, "l": 20, "r": 20, "b": 10}
   }
 }
