@@ -22,7 +22,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
     // If transition config is provided, then it is only a partial replot and traces not
     // updated are removed.
-    var isFullReplot = !transitionOpts;
     var hasTransition = transitionOpts && transitionOpts.duration > 0;
 
     if(hasTransition) {
@@ -46,7 +45,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var fmt = d3.format('.3s');
 
         var size = fullLayout._size;
-        var radius = Math.min(size.w / 2, size.h);
+        var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = 0.75 * radius;
         var isWide = !(size.h > radius);
         var verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
