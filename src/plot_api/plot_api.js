@@ -2740,9 +2740,11 @@ function react(gd, data, layout, config) {
             Plots.doCalcdata(gd);
             subroutines.doAutoRangeAndConstraints(gd);
 
-            seq.push(function() {
-                return Plots.transitionFromReact(gd, restyleFlags, relayoutFlags, oldFullLayout);
-            });
+            seq.push(
+                function() { return Plots.transitionFromReact(gd, restyleFlags, relayoutFlags, oldFullLayout); }
+                // subroutines.doLegend,
+                // subroutines.doColorBars
+            );
         } else if(restyleFlags.fullReplot || relayoutFlags.layoutReplot || configChanged) {
             gd._fullLayout._skipDefaults = true;
             seq.push(exports.plot);
@@ -2813,9 +2815,9 @@ function diffData(gd, oldFullData, newFullData, immutable, transition, newDataRe
     // TODO add test e.g. marker.line.width react diffs are FAILING !!
     function getTraceValObject(parts) {
         var out = PlotSchema.getTraceValObject(trace, parts);
-        if(!trace._module.animatable && out.anim) {
-            out.anim = false;
-        }
+        // if(!trace._module.animatable && out.anim) {
+        //     out.anim = false;
+        // }
         return out;
     }
 

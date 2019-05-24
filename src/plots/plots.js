@@ -2511,6 +2511,8 @@ plots.transitionFromReact = function(gd, restyleFlags, relayoutFlags, oldFullLay
         if(restyleFlags.anim === 'some') opts.redraw = true;
         if(relayoutFlags.anim === 'some') opts.redraw = true;
 
+        // TODO must redraw when we have a legend or a colorbar !!
+
         for(var k in subplots) {
             var plotinfo = subplots[k];
             var xa = plotinfo.xaxis;
