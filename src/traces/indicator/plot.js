@@ -10,7 +10,6 @@
 
 var d3 = require('d3');
 var Lib = require('../../lib');
-
 // var Drawing = require('../../components/drawing');
 // var svgTextUtils = require('../../lib/svg_text_utils');
 //
