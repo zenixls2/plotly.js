@@ -63,8 +63,25 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 y: verticalMargin,
                 'text-anchor': 'middle'
             })
-            .style('font-size', mainFontSize)
-            .text(fmt(cd[0].y));
+            .style('font-size', mainFontSize);
+            if(hasTransition) {
+                number
+                    .transition()
+                    .duration(transitionOpts.duration)
+                    .ease(transitionOpts.easing)
+                    .each('end', function() { onComplete && onComplete(); })
+                    .each('interrupt', function() { onComplete && onComplete(); })
+                    .attrTween('text', function() {
+                        var that = d3.select(this);
+                        var i = d3.interpolateNumber(cd[0].endY, cd[0].y);
+                        return function(t) {
+                            that.text(fmt(i(t)));
+                        };
+                    });
+            } else {
+                number.text(fmt(cd[0].y));
+            }
+
             number.exit().remove();
 
             // Trace name
