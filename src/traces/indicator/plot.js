@@ -9,13 +9,13 @@
 'use strict';
 
 var d3 = require('d3');
-
-var Drawing = require('../../components/drawing');
 var Lib = require('../../lib');
-var svgTextUtils = require('../../lib/svg_text_utils');
 
-// arc cotangent
-function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
+// var Drawing = require('../../components/drawing');
+// var svgTextUtils = require('../../lib/svg_text_utils');
+//
+// // arc cotangent
+// function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
 
 module.exports = function plot(gd, cdModule) {
     var fullLayout = gd._fullLayout;
