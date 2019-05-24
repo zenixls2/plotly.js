@@ -1,12 +1,13 @@
 {
   "data": [{
+    "name": "Speed",
     "type": "indicator",
     "values": [400, 450],
     "max": 500
   }],
   "layout": {
       "width": 200,
-      "height": 200,
+      "height": 150,
       "margin": {"t": 10, "l": 20, "r": 20, "b": 10}
   }
 }

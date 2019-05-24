@@ -38,7 +38,7 @@ module.exports = function plot(gd, cdModule) {
         var verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
 
         var mainFontSize = Math.min(2 * 0.75 * radius / (trace.max.toString().length));
-        var gaugeFontSize = 0.5 * mainFontSize;
+        var gaugeFontSize = 0.25 * mainFontSize;
 
         plotGroup.each(function() {
             var number = d3.select(this).selectAll('text.number').data(cd);
@@ -53,6 +53,18 @@ module.exports = function plot(gd, cdModule) {
             .style('font-size', mainFontSize)
             .text(fmt(cd[0].y));
             number.exit().remove();
+
+            // Trace name
+            var name = d3.select(this).selectAll('text.name').data(cd);
+            name.enter().append('text').classed('name', true);
+            name.attr({
+                x: fullLayout.width / 2,
+                y: verticalMargin - radius - gaugeFontSize,
+                'text-anchor': 'middle'
+            })
+            .style('font-size', gaugeFontSize)
+            .text(trace.name);
+            name.exit().remove();
 
             // If a gauge
             var gauge = d3.select(this).selectAll('g.gauge').data(cd);
