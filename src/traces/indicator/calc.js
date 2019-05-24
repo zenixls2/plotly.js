@@ -21,10 +21,13 @@ function calc(gd, trace) {
     var cd = [];
 
     var lastReading = trace.values[len - 1];
+    var secondLastReading = trace.values[len - 2];
     cd[0] = {
         y: lastReading,
-        p: (lastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
-        delta: trace.values[len - 1] - (trace.values[len - 2] || 0)
+        angle: (lastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
+        delta: lastReading - secondLastReading,
+
+        endAngle: (secondLastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
     };
     return cd;
 }

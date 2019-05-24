@@ -26,6 +26,7 @@ module.exports = {
         valType: 'string',
         dflt: '.3s',
         role: 'style',
+        editType: 'plot',
         description: [
             'Sets the value formatting rule using d3 formatting mini-language',
             'which is similar to those of Python. See',
