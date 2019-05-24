@@ -36,6 +36,7 @@ module.exports = {
     min: {
         valType: 'number',
         editType: 'calc',
+        role: 'info',
         dflt: 0,
         description: [
             'Sets the minimum value of the gauge.'
@@ -45,6 +46,7 @@ module.exports = {
     max: {
         valType: 'number',
         editType: 'calc',
+        role: 'info',
         description: [
             'Sets the maximum value of the gauge.'
         ].join(' ')
@@ -53,6 +55,7 @@ module.exports = {
     mode: {
         valType: 'enumerated',
         editType: 'calc',
+        role: 'info',
         values: ['gauge', 'bignumber'],
         dflt: 'bignumber'
     },

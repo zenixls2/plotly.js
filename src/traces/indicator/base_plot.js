@@ -11,19 +11,19 @@
 var Registry = require('../../registry');
 var getModuleCalcData = require('../../plots/get_data').getModuleCalcData;
 
-exports.name = 'indicator';
+var name = exports.name = 'indicator';
 
-exports.plot = function(gd) {
-    var Indicator = Registry.getModule('indicator');
-    var cd = getModuleCalcData(gd.calcdata, Indicator)[0];
-    Indicator.plot(gd, cd);
+exports.plot = function(gd, traces, transitionOpts, makeOnCompleteCallback) {
+    var _module = Registry.getModule(name);
+    var cdmodule = getModuleCalcData(gd.calcdata, _module)[0];
+    _module.plot(gd, cdmodule, transitionOpts, makeOnCompleteCallback);
 };
 
 exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout) {
-    var hadIndicator = (oldFullLayout._has && oldFullLayout._has('indicator'));
-    var hasIndicator = (newFullLayout._has && newFullLayout._has('indicator'));
+    var had = (oldFullLayout._has && oldFullLayout._has(name));
+    var has = (newFullLayout._has && newFullLayout._has(name));
 
-    if(hadIndicator && !hasIndicator) {
+    if(had && !has) {
         oldFullLayout._indicatorlayer.selectAll('g.trace').remove();
     }
 };
