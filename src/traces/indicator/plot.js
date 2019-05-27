@@ -135,7 +135,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
               .startAngle(-theta);
 
             // Draw background
-            console.log(trace.gauge.background.color);
             var bgArc = gauge.selectAll('g.bgArc').data(cd);
             bgArc.enter().append('g').classed('bgArc', true).append('path');
             bgArc.select('path').attr('d', arcPath.endAngle(theta))
