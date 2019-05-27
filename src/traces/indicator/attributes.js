@@ -11,7 +11,16 @@
 // var plotAttrs = require('../../plots/attributes');
 // var domainAttrs = require('../../plots/domain').attributes;
 
-// var extendFlat = require('../../lib/extend').extendFlat;
+var extendFlat = require('../../lib/extend').extendFlat;
+
+var fontAttrs = require('../../plots/font_attributes');
+var textFontAttrs = fontAttrs({
+    editType: 'plot',
+    arrayOk: true,
+    colorEditType: 'plot',
+    description: 'Sets the font used for `textinfo`.'
+});
+delete(textFontAttrs.size); // TODO: relative size?
 
 module.exports = {
     values: {
@@ -34,23 +43,33 @@ module.exports = {
         ].join(' ')
     },
 
-    min: {
-        valType: 'number',
-        editType: 'calc',
-        role: 'info',
-        dflt: 0,
+    font: extendFlat({}, textFontAttrs, {
+        size: undefined,
         description: [
-            'Sets the minimum value of the gauge.'
+            'Set the font used to display main number'
         ].join(' ')
-    },
+    }),
 
-    max: {
-        valType: 'number',
-        editType: 'calc',
-        role: 'info',
-        description: [
-            'Sets the maximum value of the gauge.'
-        ].join(' ')
+    gauge: {
+        min: {
+            valType: 'number',
+            editType: 'calc',
+            role: 'info',
+            dflt: 0,
+            description: [
+                'Sets the minimum value of the gauge.'
+            ].join(' ')
+        },
+
+        max: {
+            valType: 'number',
+            editType: 'calc',
+            role: 'info',
+            description: [
+                'Sets the maximum value of the gauge.'
+            ].join(' ')
+        },
+        description: 'The gauge of the Indicator plot.'
     },
 
     mode: {

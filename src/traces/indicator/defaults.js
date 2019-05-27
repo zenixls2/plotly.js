@@ -10,6 +10,7 @@
 
 var Lib = require('../../lib');
 var attributes = require('./attributes');
+var Template = require('../../plot_api/plot_template');
 // var handleDomainDefaults = require('../../plots/domain').defaults;
 // var handleText = require('../bar/defaults').handleText;
 
@@ -20,7 +21,18 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
 
     coerce('mode');
     coerce('values');
+    coerce('font.color', layout.font.color);
+    coerce('font.family', layout.font.family);
+    // Lib.coerceFont(coerce, 'font', layout.font);
 
-    coerce('min');
-    coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
+
+    // gauge attributes
+    var gaugeIn = traceIn.gauge;
+    var gaugeOut = Template.newContainer(traceOut, 'gauge');
+
+    function coerceGauge(attr, dflt) {
+        return Lib.coerce(gaugeIn, gaugeOut, attributes.gauge, attr, dflt);
+    }
+    coerceGauge('min');
+    coerceGauge('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
 };
