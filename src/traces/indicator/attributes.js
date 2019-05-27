@@ -86,6 +86,27 @@ module.exports = {
         ].join(' ')
     }),
 
+    ticker: {
+        showticker: {
+            valType: 'boolean',
+            editType: 'style',
+            role: 'style',
+            dflt: false,
+            description: [
+                'Show a ticker'
+            ].join(' ')
+        },
+        showpercentage: {
+            valType: 'boolean',
+            editType: 'style',
+            role: 'style',
+            dflt: false,
+            description: [
+                'Show relative change in percentage'
+            ].join(' ')
+        }
+    },
+
     gauge: {
         min: {
             valType: 'number',

@@ -41,4 +41,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerceGauge('value.color');
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
+
+    coerce('ticker.showticker');
+    coerce('ticker.showpercentage');
 };

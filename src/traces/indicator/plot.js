@@ -16,6 +16,11 @@ var Drawing = require('../../components/drawing');
 // // arc cotangent
 // function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
 
+var DIRSYMBOL = {
+    increasing: '▲',
+    decreasing: '▼'
+};
+
 module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallback) {
     var fullLayout = gd._fullLayout;
     var onComplete;
@@ -41,28 +46,49 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var plotGroup = d3.select(this);
         var cd0 = cd[0];
         var trace = cd0.trace;
-        var theta = Math.PI / 2;
+
+        var hasTicker = trace.ticker.showticker;
+
         var fmt = d3.format('.3s');
+        var tickerPercentFmt = d3.format('2%');
 
         var size = fullLayout._size;
+
+        // bignumber
+        var isBigNumber = trace.mode === 'bignumber';
+
+        // gauge related
+        var isGauge = trace.mode === 'gauge';
+        var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = 0.75 * radius;
         var isWide = !(size.h > radius);
-        var verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
 
-        // TODO: check formatted size of the number
-        var mainFontSize = Math.min(2 * innerRadius / (trace.gauge.max.toString().length));
-        var gaugeFontSize = 0.25 * mainFontSize;
+        var verticalMargin, mainFontSize, tickerFontSize, gaugeFontSize;
+        if(isGauge) {
+            verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
+            // TODO: check formatted size of the number
+            mainFontSize = Math.min(2 * innerRadius / (trace.gauge.max.toString().length));
+            tickerFontSize = 0.35 * mainFontSize;
+        }
+        if(isBigNumber) {
+            // Center the text
+            mainFontSize = Math.min(size.w / (trace.gauge.max.toString().length), size.h / 2);
+            verticalMargin = size.t + size.h / 2;
+            tickerFontSize = 0.5 * mainFontSize;
+        }
+        gaugeFontSize = 0.25 * mainFontSize;
 
         plotGroup.each(function() {
+            // bignumber
             var number = d3.select(this).selectAll('text.number').data(cd);
-
             number.enter().append('text').classed('number', true);
 
             number.attr({
                 x: fullLayout.width / 2,
                 y: verticalMargin,
-                'text-anchor': 'middle'
+                'text-anchor': 'middle',
+                'alignment-baseline': isGauge ? 'bottom' : 'middle'
             })
             .call(Drawing.font, trace.font)
             .style('font-size', mainFontSize);
@@ -84,7 +110,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             } else {
                 number.text(fmt(cd[0].y));
             }
-
             number.exit().remove();
 
             // Trace name
@@ -92,16 +117,40 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             name.enter().append('text').classed('name', true);
             name.attr({
                 x: fullLayout.width / 2,
-                y: verticalMargin - radius - gaugeFontSize,
-                'text-anchor': 'middle'
+                y: size.t + gaugeFontSize / 2,
+                'text-anchor': 'middle',
+                'alignment-baseline': 'middle'
             })
             .call(Drawing.font, trace.font)
             .style('font-size', gaugeFontSize)
             .text(trace.name);
             name.exit().remove();
 
+            // Ticker
+            var data = cd.filter(function() {return hasTicker;});
+            var ticker = d3.select(this).selectAll('text.ticker').data(data);
+            ticker.enter().append('text').classed('ticker', true);
+            ticker.attr({
+                x: fullLayout.width / 2,
+                'text-anchor': 'middle',
+                'alignment-baseline': 'middle'
+            })
+            .attr('y', function(d) {
+                return isBigNumber ? size.t + size.h - tickerFontSize / 2 : verticalMargin + tickerFontSize;
+            })
+            .call(Drawing.font, trace.font)
+            .style('font-size', tickerFontSize)
+            .style('fill', function(d) {
+                return d.delta > 0 ? 'green' : 'red';
+            })
+            .text(function(d) {
+                var value = trace.ticker.showpercentage ? tickerPercentFmt(d.relativeDelta) : fmt(d.delta);
+                return (d.delta > 0 ? DIRSYMBOL.increasing : DIRSYMBOL.decreasing) + value;
+            });
+
             // Draw gauge
-            var gauge = d3.select(this).selectAll('g.gauge').data(cd);
+            data = cd.filter(function() {return isGauge;});
+            var gauge = d3.select(this).selectAll('g.gauge').data(data);
             gauge.enter().append('g').classed('gauge', true);
             gauge.attr('transform', 'translate(' + fullLayout.width / 2 + ',' + verticalMargin + ')');
 
@@ -109,38 +158,38 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var minText = gauge.selectAll('text.min').data(cd);
             minText.enter().append('text').classed('min', true);
             minText
-              .call(Drawing.font, trace.font)
-              .style('font-size', gaugeFontSize)
-              .attr({
-                  x: - (innerRadius + radius) / 2,
-                  y: gaugeFontSize,
-                  'text-anchor': 'middle'
-              })
-              .text(fmt(trace.gauge.min));
+                  .call(Drawing.font, trace.font)
+                  .style('font-size', gaugeFontSize)
+                  .attr({
+                      x: - (innerRadius + radius) / 2,
+                      y: gaugeFontSize,
+                      'text-anchor': 'middle'
+                  })
+                  .text(fmt(trace.gauge.min));
 
             var maxText = gauge.selectAll('text.max').data(cd);
             maxText.enter().append('text').classed('max', true);
             maxText
-              .call(Drawing.font, trace.font)
-              .style('font-size', gaugeFontSize)
-              .attr({
-                  x: (innerRadius + radius) / 2,
-                  y: gaugeFontSize,
-                  'text-anchor': 'middle'
-              })
-              .text(fmt(trace.gauge.max));
+                  .call(Drawing.font, trace.font)
+                  .style('font-size', gaugeFontSize)
+                  .attr({
+                      x: (innerRadius + radius) / 2,
+                      y: gaugeFontSize,
+                      'text-anchor': 'middle'
+                  })
+                  .text(fmt(trace.gauge.max));
 
             var arcPath = d3.svg.arc()
-              .innerRadius(innerRadius).outerRadius(radius)
-              .startAngle(-theta);
+                  .innerRadius(innerRadius).outerRadius(radius)
+                  .startAngle(-theta);
 
             // Draw background
             var bgArc = gauge.selectAll('g.bgArc').data(cd);
             bgArc.enter().append('g').classed('bgArc', true).append('path');
             bgArc.select('path').attr('d', arcPath.endAngle(theta))
-              .style('fill', trace.gauge.background.color)
-              .style('stroke', trace.gauge.background.line.color)
-              .style('stroke-width', trace.gauge.background.line.width);
+                  .style('fill', trace.gauge.background.color)
+                  .style('stroke', trace.gauge.background.line.color)
+                  .style('stroke-width', trace.gauge.background.line.width);
             bgArc.exit().remove();
 
             // Draw foreground with transition
@@ -150,20 +199,20 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var fgArcPath = fgArc.select('path');
             if(hasTransition) {
                 fgArcPath
-                  .transition()
-                  .duration(transitionOpts.duration)
-                  .ease(transitionOpts.easing)
-                  .each('end', function() { onComplete && onComplete(); })
-                  .each('interrupt', function() { onComplete && onComplete(); })
-                  .attrTween('d', arcTween(arcPath, cd[0].angle));
+                      .transition()
+                      .duration(transitionOpts.duration)
+                      .ease(transitionOpts.easing)
+                      .each('end', function() { onComplete && onComplete(); })
+                      .each('interrupt', function() { onComplete && onComplete(); })
+                      .attrTween('d', arcTween(arcPath, cd[0].angle));
             } else {
                 fgArcPath
-                  .attr('d', arcPath.endAngle(cd[0].angle));
+                      .attr('d', arcPath.endAngle(cd[0].angle));
             }
             fgArcPath
-              .style('fill', trace.gauge.value.color)
-              .style('stroke', trace.gauge.value.line.color)
-              .style('stroke-width', trace.gauge.value.line.width);
+                  .style('fill', trace.gauge.value.color)
+                  .style('stroke', trace.gauge.value.line.color)
+                  .style('stroke-width', trace.gauge.value.line.width);
             fgArc.exit().remove();
         });
     });

@@ -26,6 +26,7 @@ function calc(gd, trace) {
         y: lastReading,
         angle: (lastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
         delta: lastReading - secondLastReading,
+        relativeDelta: (lastReading - secondLastReading) / secondLastReading,
 
         endAngle: (secondLastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
         endY: secondLastReading
