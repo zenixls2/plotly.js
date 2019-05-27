@@ -2,7 +2,7 @@
   "data": [{
     "name": "Accounts",
     "type": "indicator",
-    "mode": "bignumber",
+    "mode": "bignumber+sparkline",
     "ticker": {
       "showticker": true,
       "showpercentage": true

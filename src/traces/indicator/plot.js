@@ -57,6 +57,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         // bignumber
         var isBigNumber = trace.mode === 'bignumber';
 
+        // trendline
+        var hasSparkline = trace.mode === 'sparkline';
+        if(hasSparkline) isBigNumber = true;
+
         // gauge related
         var isGauge = trace.mode === 'gauge';
         var theta = Math.PI / 2;
@@ -135,7 +139,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 'text-anchor': 'middle',
                 'alignment-baseline': 'middle'
             })
-            .attr('y', function(d) {
+            .attr('y', function() {
                 return isBigNumber ? size.t + size.h - tickerFontSize / 2 : verticalMargin + tickerFontSize;
             })
             .call(Drawing.font, trace.font)
@@ -147,6 +151,24 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 var value = trace.ticker.showpercentage ? tickerPercentFmt(d.relativeDelta) : fmt(d.delta);
                 return (d.delta > 0 ? DIRSYMBOL.increasing : DIRSYMBOL.decreasing) + value;
             });
+            ticker.exit().remove();
+
+            // Draw trendline
+            data = cd.filter(function() {return hasSparkline;});
+            var x = d3.scale.linear().domain([0, cd0.historical.length - 1]).range([0, size.w]);
+            var y = d3.scale.linear().domain([0, 600]).range([size.h, 0]);
+            var line = d3.svg.line()
+              .x(function(d, i) { return x(i);})
+              .y(function(d) { return y(d);});
+            var sparkline = d3.select(this).selectAll('path.sparkline').data(data);
+            sparkline.enter().append('svg:path').classed('sparkline', true);
+            sparkline
+              .attr('d', line(cd0.historical))
+              .style('fill', 'none')
+              .style('stroke', 'rgba(255, 255, 255, 0.5)')
+              .style('stroke-width', 2)
+              .attr('transform', 'translate(' + size.l + ', ' + size.t + ')');
+            sparkline.exit().remove();
 
             // Draw gauge
             data = cd.filter(function() {return isGauge;});

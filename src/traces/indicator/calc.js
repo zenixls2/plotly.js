@@ -28,6 +28,8 @@ function calc(gd, trace) {
         delta: lastReading - secondLastReading,
         relativeDelta: (lastReading - secondLastReading) / secondLastReading,
 
+        historical: trace.values,
+
         endAngle: (secondLastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
         endY: secondLastReading
     };

@@ -106,7 +106,6 @@ module.exports = {
             ].join(' ')
         }
     },
-
     gauge: {
         min: {
             valType: 'number',
@@ -148,7 +147,7 @@ module.exports = {
         valType: 'enumerated',
         editType: 'calc',
         role: 'info',
-        values: ['gauge', 'bignumber'],
+        values: ['gauge', 'bignumber', 'sparkline'],
         dflt: 'bignumber'
     },
 };

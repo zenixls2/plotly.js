@@ -1,0 +1,29 @@
+{
+  "data": [{
+    "name": "Price",
+    "type": "indicator",
+    "mode": "sparkline",
+    "ticker": {
+      "showticker": true
+    },
+    "values": [375, 400, 450, 437, 425, 460, 200, 350, 387, 354],
+    "font": {
+      "color": "white",
+      "family": "Dosis"
+    }
+  }],
+  "layout": {
+    "width": 375,
+    "height": 250,
+    "paper_bgcolor": "black",
+    "margin": {
+      "t": 25,
+      "r": 25,
+      "l": 25,
+      "b": 25
+    }
+  },
+  "config": {
+    "responsive": true
+  }
+}
