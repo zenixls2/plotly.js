@@ -10,7 +10,7 @@
 
 var d3 = require('d3');
 var Lib = require('../../lib');
-// var Drawing = require('../../components/drawing');
+var Drawing = require('../../components/drawing');
 // var svgTextUtils = require('../../lib/svg_text_utils');
 //
 // // arc cotangent
@@ -50,7 +50,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var isWide = !(size.h > radius);
         var verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
 
-        var mainFontSize = Math.min(2 * 0.75 * radius / (trace.max.toString().length));
+        // TODO: check formatted size of the number
+        var mainFontSize = Math.min(2 * innerRadius / (trace.gauge.max.toString().length));
         var gaugeFontSize = 0.25 * mainFontSize;
 
         plotGroup.each(function() {
@@ -63,7 +64,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 y: verticalMargin,
                 'text-anchor': 'middle'
             })
+            .call(Drawing.font, trace.font)
             .style('font-size', mainFontSize);
+
             if(hasTransition) {
                 number
                     .transition()
@@ -92,6 +95,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 y: verticalMargin - radius - gaugeFontSize,
                 'text-anchor': 'middle'
             })
+            .call(Drawing.font, trace.font)
             .style('font-size', gaugeFontSize)
             .text(trace.name);
             name.exit().remove();
@@ -105,35 +109,39 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var minText = gauge.selectAll('text.min').data(cd);
             minText.enter().append('text').classed('min', true);
             minText
-              .text(fmt(trace.min))
+              .call(Drawing.font, trace.font)
               .style('font-size', gaugeFontSize)
               .attr({
                   x: - (innerRadius + radius) / 2,
                   y: gaugeFontSize,
                   'text-anchor': 'middle'
-              });
+              })
+              .text(fmt(trace.gauge.min));
 
             var maxText = gauge.selectAll('text.max').data(cd);
             maxText.enter().append('text').classed('max', true);
             maxText
-              .text(fmt(trace.max))
+              .call(Drawing.font, trace.font)
               .style('font-size', gaugeFontSize)
               .attr({
                   x: (innerRadius + radius) / 2,
                   y: gaugeFontSize,
                   'text-anchor': 'middle'
-              });
+              })
+              .text(fmt(trace.gauge.max));
 
             var arcPath = d3.svg.arc()
               .innerRadius(innerRadius).outerRadius(radius)
               .startAngle(-theta);
 
             // Draw background
+            console.log(trace.gauge.background.color);
             var bgArc = gauge.selectAll('g.bgArc').data(cd);
             bgArc.enter().append('g').classed('bgArc', true).append('path');
             bgArc.select('path').attr('d', arcPath.endAngle(theta))
-              .style('fill', 'rgba(0, 0, 0, 0.1)')
-              .style('stroke', 'rgba(0, 0, 0, 0.25)');
+              .style('fill', trace.gauge.background.color)
+              .style('stroke', trace.gauge.background.line.color)
+              .style('stroke-width', trace.gauge.background.line.width);
             bgArc.exit().remove();
 
             // Draw foreground with transition
@@ -153,7 +161,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 fgArcPath
                   .attr('d', arcPath.endAngle(cd[0].angle));
             }
-            fgArcPath.style('fill', 'green');
+            fgArcPath
+              .style('fill', trace.gauge.value.color)
+              .style('stroke', trace.gauge.value.line.color)
+              .style('stroke-width', trace.gauge.value.line.width);
             fgArc.exit().remove();
         });
     });

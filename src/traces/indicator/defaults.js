@@ -35,4 +35,10 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     }
     coerceGauge('min');
     coerceGauge('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
+    coerceGauge('background.color');
+    coerceGauge('background.line.color');
+    coerceGauge('background.line.width');
+    coerceGauge('value.color');
+    coerceGauge('value.line.color');
+    coerceGauge('value.line.width');
 };
