@@ -84,6 +84,24 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         gaugeFontSize = 0.25 * mainFontSize;
 
         plotGroup.each(function() {
+            var data;
+            // Draw trendline
+            data = cd.filter(function() {return hasSparkline;});
+            var x = d3.scale.linear().domain([0, cd0.historical.length - 1]).range([0, size.w]);
+            var y = d3.scale.linear().domain([0, 600]).range([size.h, 0]);
+            var line = d3.svg.line()
+              .x(function(d, i) { return x(i);})
+              .y(function(d) { return y(d);});
+            var sparkline = d3.select(this).selectAll('path.sparkline').data(data);
+            sparkline.enter().append('svg:path').classed('sparkline', true);
+            sparkline
+              .attr('d', line(cd0.historical))
+              .style('fill', 'none')
+              .style('stroke', 'rgba(255, 255, 255, 0.5)')
+              .style('stroke-width', 2)
+              .attr('transform', 'translate(' + size.l + ', ' + size.t + ')');
+            sparkline.exit().remove();
+
             // bignumber
             var number = d3.select(this).selectAll('text.number').data(cd);
             number.enter().append('text').classed('number', true);
@@ -131,7 +149,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             name.exit().remove();
 
             // Ticker
-            var data = cd.filter(function() {return hasTicker;});
+            data = cd.filter(function() {return hasTicker;});
             var ticker = d3.select(this).selectAll('text.ticker').data(data);
             ticker.enter().append('text').classed('ticker', true);
             ticker.attr({
@@ -152,23 +170,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 return (d.delta > 0 ? DIRSYMBOL.increasing : DIRSYMBOL.decreasing) + value;
             });
             ticker.exit().remove();
-
-            // Draw trendline
-            data = cd.filter(function() {return hasSparkline;});
-            var x = d3.scale.linear().domain([0, cd0.historical.length - 1]).range([0, size.w]);
-            var y = d3.scale.linear().domain([0, 600]).range([size.h, 0]);
-            var line = d3.svg.line()
-              .x(function(d, i) { return x(i);})
-              .y(function(d) { return y(d);});
-            var sparkline = d3.select(this).selectAll('path.sparkline').data(data);
-            sparkline.enter().append('svg:path').classed('sparkline', true);
-            sparkline
-              .attr('d', line(cd0.historical))
-              .style('fill', 'none')
-              .style('stroke', 'rgba(255, 255, 255, 0.5)')
-              .style('stroke-width', 2)
-              .attr('transform', 'translate(' + size.l + ', ' + size.t + ')');
-            sparkline.exit().remove();
 
             // Draw gauge
             data = cd.filter(function() {return isGauge;});
