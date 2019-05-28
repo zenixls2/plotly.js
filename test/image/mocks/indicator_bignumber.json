@@ -2,21 +2,12 @@
   "data": [{
     "name": "Accounts",
     "type": "indicator",
-    "mode": "bignumber+sparkline",
+    "mode": "bignumber",
     "ticker": {
       "showticker": true,
       "showpercentage": true
     },
-    "gauge": {
-      "max": 500,
-      "background": {
-        "color": "rgba(255, 255, 255, 0.25)",
-        "line": {
-          "width": 2,
-          "color": "rgba(255, 255, 255, 0.5)"
-        }
-      }
-    },
+    "max": 500,
     "values": [400, 450],
     "font": {
       "color": "white",
