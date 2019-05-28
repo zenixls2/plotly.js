@@ -52,7 +52,17 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var fmt = d3.format('.3s');
         var tickerPercentFmt = d3.format('2%');
 
-        var size = fullLayout._size;
+        // var size = fullLayout._size;
+        var domain = trace.domain;
+        var size = Lib.extendFlat({}, fullLayout._size, {
+            w: fullLayout._size.w * (domain.x[1] - domain.x[0]),
+            h: fullLayout._size.h * (domain.y[1] - domain.y[0]),
+            l: Math.max(fullLayout._size.l, fullLayout.width * domain.x[0]),
+            r: Math.max(fullLayout._size.r, fullLayout.width * (1 - domain.x[1])),
+            t: Math.max(fullLayout._size.t, fullLayout.height * domain.y[0]),
+            b: Math.max(fullLayout._size.b, fullLayout.height * (1 - domain.y[0]))
+        });
+        var centerX = size.l + size.w / 2;
 
         // bignumber
         var isBigNumber = trace.mode === 'bignumber';
@@ -70,7 +80,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         var verticalMargin, mainFontSize, tickerFontSize, gaugeFontSize;
         if(isGauge) {
-            verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
+            verticalMargin = size.t + size.h;
+            if(!isWide) verticalMargin -= (size.h - radius) / 2;
             // TODO: check formatted size of the number
             mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
             tickerFontSize = 0.35 * mainFontSize;
@@ -87,8 +98,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var data;
             // Draw trendline
             data = cd.filter(function() {return hasSparkline;});
-            var x = d3.scale.linear().domain([0, cd0.historical.length - 1]).range([0, size.w]);
-            var y = d3.scale.linear().domain([0, 600]).range([size.h, 0]);
+            var x = d3.scale.linear().domain([trace.min, cd0.historical.length - 1]).range([0, size.w]);
+            var y = d3.scale.linear().domain([trace.min, trace.max]).range([size.h, 0]);
             var line = d3.svg.line()
               .x(function(d, i) { return x(i);})
               .y(function(d) { return y(d);});
@@ -107,7 +118,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             number.enter().append('text').classed('number', true);
 
             number.attr({
-                x: fullLayout.width / 2,
+                x: centerX,
                 y: verticalMargin,
                 'text-anchor': 'middle',
                 'alignment-baseline': isGauge ? 'bottom' : 'middle'
@@ -138,7 +149,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var name = d3.select(this).selectAll('text.name').data(cd);
             name.enter().append('text').classed('name', true);
             name.attr({
-                x: fullLayout.width / 2,
+                x: centerX,
                 y: size.t + gaugeFontSize / 2,
                 'text-anchor': 'middle',
                 'alignment-baseline': 'middle'
@@ -153,7 +164,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var ticker = d3.select(this).selectAll('text.ticker').data(data);
             ticker.enter().append('text').classed('ticker', true);
             ticker.attr({
-                x: fullLayout.width / 2,
+                x: centerX,
                 'text-anchor': 'middle',
                 'alignment-baseline': 'middle'
             })

@@ -10,6 +10,7 @@
 
 var Lib = require('../../lib');
 var attributes = require('./attributes');
+var handleDomainDefaults = require('../../plots/domain').defaults;
 var Template = require('../../plot_api/plot_template');
 // var handleDomainDefaults = require('../../plots/domain').defaults;
 // var handleText = require('../bar/defaults').handleText;
@@ -23,6 +24,8 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('values');
     coerce('min');
     coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
+
+    handleDomainDefaults(traceOut, layout, coerce);
 
     // Font attribtes
     coerce('font.color', layout.font.color);

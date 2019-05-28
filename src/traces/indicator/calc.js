@@ -8,7 +8,7 @@
 
 'use strict';
 
-var Lib = require('../../lib');
+// var Lib = require('../../lib');
 
 function calc(gd, trace) {
     var len = trace.values.length;

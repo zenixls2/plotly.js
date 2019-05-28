@@ -15,6 +15,7 @@ var extendFlat = require('../../lib/extend').extendFlat;
 var extendDeep = require('../../lib/extend').extendDeep;
 var fontAttrs = require('../../plots/font_attributes');
 var colorAttrs = require('../../components/color/attributes');
+var domainAttrs = require('../../plots/domain').attributes;
 
 var textFontAttrs = fontAttrs({
     editType: 'plot',
@@ -60,6 +61,13 @@ var gaugeArcAttr = {
 
 
 module.exports = {
+    mode: {
+        valType: 'enumerated',
+        editType: 'calc',
+        role: 'info',
+        values: ['gauge', 'bignumber', 'sparkline'],
+        dflt: 'bignumber'
+    },
     values: {
         valType: 'data_array',
         editType: 'calc',
@@ -67,7 +75,6 @@ module.exports = {
             'Sets the number to be displayed.'
         ].join(' ')
     },
-
     valueformat: {
         valType: 'string',
         dflt: '.3s',
@@ -79,7 +86,6 @@ module.exports = {
             'https://github.com/d3/d3-format/blob/master/README.md#locale_format'
         ].join(' ')
     },
-
     min: {
         valType: 'number',
         editType: 'calc',
@@ -97,7 +103,8 @@ module.exports = {
             'Sets the maximum value of the gauge.'
         ].join(' ')
     },
-
+    // position and shape
+    domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
     font: extendFlat({}, textFontAttrs, {
         description: [
             'Set the font used to display main number'
@@ -142,13 +149,5 @@ module.exports = {
             ].join(' ')
         }),
         description: 'The gauge of the Indicator plot.'
-    },
-
-    mode: {
-        valType: 'enumerated',
-        editType: 'calc',
-        role: 'info',
-        values: ['gauge', 'bignumber', 'sparkline'],
-        dflt: 'bignumber'
-    },
+    }
 };
