@@ -13,25 +13,20 @@
 function calc(gd, trace) {
     var len = trace.values.length;
 
-    // Gauge
-    var gaugeMin = trace.min;
-    var gaugeMax = trace.max;
-    var gaugeRange = gaugeMax - gaugeMin;
-
     var cd = [];
 
+    var singleValue = len === 1;
     var lastReading = trace.values[len - 1];
-    var secondLastReading = trace.values[len - 2];
+    var secondLastReading = singleValue ? lastReading : trace.values[len - 2];
     cd[0] = {
         y: lastReading,
-        angle: (lastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
+        lastY: secondLastReading,
+
         delta: lastReading - secondLastReading,
         relativeDelta: (lastReading - secondLastReading) / secondLastReading,
 
         historical: trace.values,
 
-        endAngle: (secondLastReading - gaugeMin) / gaugeRange * Math.PI - Math.PI / 2,
-        endY: secondLastReading
     };
     return cd;
 }

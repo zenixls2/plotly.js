@@ -78,6 +78,13 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var innerRadius = 0.75 * radius;
         var isWide = !(size.h > radius);
 
+        function valueToAngle(v) {
+            var angle = (v / trace.max) * Math.PI - Math.PI / 2;
+            if(angle < -theta) return -theta;
+            if(angle > theta) return theta;
+            return angle;
+        }
+
         var verticalMargin, mainFontSize, tickerFontSize, gaugeFontSize;
         if(isGauge) {
             verticalMargin = size.t + size.h;
@@ -135,7 +142,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                     .each('interrupt', function() { onComplete && onComplete(); })
                     .attrTween('text', function() {
                         var that = d3.select(this);
-                        var i = d3.interpolateNumber(cd[0].endY, cd[0].y);
+                        var i = d3.interpolateNumber(cd[0].lastY, cd[0].y);
                         return function(t) {
                             that.text(fmt(i(t)));
                         };
@@ -226,6 +233,17 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .style('stroke-width', trace.gauge.background.line.width);
             bgArc.exit().remove();
 
+            // Draw target
+            var thetaTarget = -theta;
+            if(trace.target) thetaTarget = valueToAngle(trace.target);
+            var targetArc = gauge.selectAll('g.targetArc').data(cd);
+            targetArc.enter().append('g').classed('targetArc', true).append('path');
+            targetArc.select('path').attr('d', arcPath.endAngle(thetaTarget))
+                  .style('fill', trace.gauge.target.color)
+                  .style('stroke', trace.gauge.target.line.color)
+                  .style('stroke-width', trace.gauge.target.line.width);
+            targetArc.exit().remove();
+
             // Draw foreground with transition
             var fgArc = gauge.selectAll('g.fgArc').data(cd);
             fgArc.enter().append('g').classed('fgArc', true).append('path');
@@ -238,10 +256,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                       .ease(transitionOpts.easing)
                       .each('end', function() { onComplete && onComplete(); })
                       .each('interrupt', function() { onComplete && onComplete(); })
-                      .attrTween('d', arcTween(arcPath, cd[0].angle));
+                      .attrTween('d', arcTween(arcPath, valueToAngle(cd[0].lastY), valueToAngle(cd[0].y)));
             } else {
                 fgArcPath
-                      .attr('d', arcPath.endAngle(cd[0].angle));
+                      .attr('d', arcPath.endAngle(valueToAngle(cd[0].y)));
             }
             fgArcPath
                   .style('fill', trace.gauge.value.color)
@@ -254,9 +272,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
 // Returns a tween for a transition’s "d" attribute, transitioning any selected
 // arcs from their current angle to the specified new angle.
-function arcTween(arc, newAngle) {
-    return function(d) {
-        var interpolate = d3.interpolate(d.endAngle, newAngle);
+function arcTween(arc, endAngle, newAngle) {
+    return function() {
+        var interpolate = d3.interpolate(endAngle, newAngle);
         return function(t) {
             return arc.endAngle(interpolate(t))();
         };

@@ -61,7 +61,6 @@ var gaugeArcAttr = {
     editType: 'calc'
 };
 
-
 module.exports = {
     mode: {
         valType: 'enumerated',
@@ -105,6 +104,15 @@ module.exports = {
             'Sets the maximum value of the gauge.'
         ].join(' ')
     },
+    target: {
+        valType: 'number',
+        editType: 'calc',
+        role: 'info',
+        description: [
+            'Sets a target value.'
+        ].join(' ')
+    },
+
     // position and shape
     domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
     font: extendFlat({}, textFontAttrs, {

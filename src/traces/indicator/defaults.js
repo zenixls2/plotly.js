@@ -24,6 +24,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('values');
     coerce('min');
     coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
+    coerce('target');
 
     handleDomainDefaults(traceOut, layout, coerce);
 
@@ -46,6 +47,9 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerceGauge('value.color');
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
+    coerceGauge('target.color');
+    coerceGauge('target.line.color');
+    coerceGauge('target.line.width');
 
     // ticker attributes
     coerce('ticker.showticker');
