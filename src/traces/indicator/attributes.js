@@ -25,10 +25,12 @@ var textFontAttrs = fontAttrs({
 });
 delete(textFontAttrs.size); // TODO: relative size?
 
+// TODO: choose appropriate editType
 var gaugeArcAttr = {
     color: {
         valType: 'color',
         editType: 'style',
+        role: 'style',
         description: [
             'Sets the background color of the arc.'
         ].join(' ')
@@ -129,7 +131,8 @@ module.exports = {
             description: [
                 'Show relative change in percentage'
             ].join(' ')
-        }
+        },
+        editType: 'style'
     },
     gauge: {
         background: extendFlat({}, gaugeArcAttr, {
@@ -148,6 +151,7 @@ module.exports = {
                 'Set the appearance of the gauge\'s target'
             ].join(' ')
         }),
-        description: 'The gauge of the Indicator plot.'
+        description: 'The gauge of the Indicator plot.',
+        editType: 'plot'
     }
 };
