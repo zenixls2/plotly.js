@@ -21,6 +21,10 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
 
     coerce('mode');
     coerce('values');
+    coerce('min');
+    coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
+
+    // Font attribtes
     coerce('font.color', layout.font.color);
     coerce('font.family', layout.font.family);
     // Lib.coerceFont(coerce, 'font', layout.font);
@@ -33,8 +37,6 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     function coerceGauge(attr, dflt) {
         return Lib.coerce(gaugeIn, gaugeOut, attributes.gauge, attr, dflt);
     }
-    coerceGauge('min');
-    coerceGauge('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
     coerceGauge('background.color');
     coerceGauge('background.line.color');
     coerceGauge('background.line.width');
@@ -42,6 +44,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
 
+    // ticker attributes
     coerce('ticker.showticker');
     coerce('ticker.showpercentage');
 };

@@ -72,12 +72,12 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         if(isGauge) {
             verticalMargin = isWide ? fullLayout.height - size.b : fullLayout.height - size.b - (size.h - radius) / 2;
             // TODO: check formatted size of the number
-            mainFontSize = Math.min(2 * innerRadius / (trace.gauge.max.toString().length));
+            mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
             tickerFontSize = 0.35 * mainFontSize;
         }
         if(isBigNumber) {
             // Center the text
-            mainFontSize = Math.min(size.w / (trace.gauge.max.toString().length), size.h / 2);
+            mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
             verticalMargin = size.t + size.h / 2;
             tickerFontSize = 0.5 * mainFontSize;
         }
@@ -188,7 +188,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                       y: gaugeFontSize,
                       'text-anchor': 'middle'
                   })
-                  .text(fmt(trace.gauge.min));
+                  .text(fmt(trace.min));
 
             var maxText = gauge.selectAll('text.max').data(cd);
             maxText.enter().append('text').classed('max', true);
@@ -200,7 +200,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                       y: gaugeFontSize,
                       'text-anchor': 'middle'
                   })
-                  .text(fmt(trace.gauge.max));
+                  .text(fmt(trace.max));
 
             var arcPath = d3.svg.arc()
                   .innerRadius(innerRadius).outerRadius(radius)

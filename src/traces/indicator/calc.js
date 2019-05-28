@@ -14,8 +14,8 @@ function calc(gd, trace) {
     var len = trace.values.length;
 
     // Gauge
-    var gaugeMin = trace.gauge.min;
-    var gaugeMax = trace.gauge.max;
+    var gaugeMin = trace.min;
+    var gaugeMax = trace.max;
     var gaugeRange = gaugeMax - gaugeMin;
 
     var cd = [];

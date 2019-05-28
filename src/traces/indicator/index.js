@@ -27,7 +27,7 @@ module.exports = {
 
     meta: {
         description: [
-            'TODO'
+            'TODO: add description'
         ].join(' ')
     }
 };

@@ -80,6 +80,24 @@ module.exports = {
         ].join(' ')
     },
 
+    min: {
+        valType: 'number',
+        editType: 'calc',
+        role: 'info',
+        dflt: 0,
+        description: [
+            'Sets the minimum value of the gauge.'
+        ].join(' ')
+    },
+    max: {
+        valType: 'number',
+        editType: 'calc',
+        role: 'info',
+        description: [
+            'Sets the maximum value of the gauge.'
+        ].join(' ')
+    },
+
     font: extendFlat({}, textFontAttrs, {
         description: [
             'Set the font used to display main number'
@@ -107,23 +125,6 @@ module.exports = {
         }
     },
     gauge: {
-        min: {
-            valType: 'number',
-            editType: 'calc',
-            role: 'info',
-            dflt: 0,
-            description: [
-                'Sets the minimum value of the gauge.'
-            ].join(' ')
-        },
-        max: {
-            valType: 'number',
-            editType: 'calc',
-            role: 'info',
-            description: [
-                'Sets the maximum value of the gauge.'
-            ].join(' ')
-        },
         background: extendFlat({}, gaugeArcAttr, {
             description: [
                 'Set the appearance of the gauge\'s background'
