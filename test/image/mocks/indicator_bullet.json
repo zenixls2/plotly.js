@@ -1,0 +1,43 @@
+{
+  "data": [{
+    "name": "Speed",
+    "type": "indicator",
+    "mode": "bullet",
+    "ticker": {
+      "showticker": false
+    },
+    "max": 500,
+    "target": 300,
+    "gauge": {
+      "background": {
+        "color": "rgba(255, 255, 255, 0.25)",
+        "line": {
+          "width": 2,
+          "color": "rgba(255, 255, 255, 0.5)"
+        }
+      },
+      "target": {
+        "color": "rgba(255, 255, 0, 0.5)"
+      }
+    },
+    "values": [125, 175],
+    "font": {
+      "color": "white",
+      "family": "Dosis"
+    }
+  }],
+  "layout": {
+    "width": 375,
+    "height": 250,
+    "paper_bgcolor": "black",
+    "margin": {
+      "t": 25,
+      "r": 25,
+      "l": 25,
+      "b": 25
+    }
+  },
+  "config": {
+    "responsive": true
+  }
+}

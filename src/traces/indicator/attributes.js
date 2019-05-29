@@ -66,7 +66,7 @@ module.exports = {
         valType: 'enumerated',
         editType: 'calc',
         role: 'info',
-        values: ['gauge', 'bignumber', 'sparkline'],
+        values: ['gauge', 'bignumber', 'sparkline', 'bullet'],
         dflt: 'bignumber'
     },
     values: {

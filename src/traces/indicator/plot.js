@@ -9,17 +9,17 @@
 'use strict';
 
 var d3 = require('d3');
+
 var Lib = require('../../lib');
 var Drawing = require('../../components/drawing');
+// var Plots = require('../../plots/plots');
+// var Axes = require('../../plots/cartesian/axes');
 // var svgTextUtils = require('../../lib/svg_text_utils');
 //
 // // arc cotangent
 // function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
-
-var DIRSYMBOL = {
-    increasing: '▲',
-    decreasing: '▼'
-};
+var cn = require('./constants');
+// var barPlot = require('../bar/plot').plot;
 
 module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallback) {
     var fullLayout = gd._fullLayout;
@@ -71,11 +71,14 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var hasSparkline = trace.mode === 'sparkline';
         if(hasSparkline) isBigNumber = true;
 
+        // bullet
+        var isBullet = trace.mode === 'bullet';
+
         // gauge related
         var isGauge = trace.mode === 'gauge';
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
-        var innerRadius = 0.75 * radius;
+        var innerRadius = cn.innerRadius * radius;
         var isWide = !(size.h > radius);
 
         function valueToAngle(v) {
@@ -99,7 +102,13 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             verticalMargin = size.t + size.h / 2;
             tickerFontSize = 0.5 * mainFontSize;
         }
-        gaugeFontSize = 0.25 * mainFontSize;
+        if(isBullet) {
+            // Center the text
+            mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
+            verticalMargin = size.t + size.h / 2;
+            tickerFontSize = 0.5 * mainFontSize;
+        }
+        gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
 
         plotGroup.each(function() {
             var data;
@@ -176,7 +185,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 'alignment-baseline': 'middle'
             })
             .attr('y', function() {
-                return isBigNumber ? size.t + size.h - tickerFontSize / 2 : verticalMargin + tickerFontSize;
+                return !isGauge ? size.t + size.h - tickerFontSize / 2 : verticalMargin + tickerFontSize;
             })
             .call(Drawing.font, trace.font)
             .style('font-size', tickerFontSize)
@@ -185,7 +194,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             })
             .text(function(d) {
                 var value = trace.ticker.showpercentage ? tickerPercentFmt(d.relativeDelta) : fmt(d.delta);
-                return (d.delta > 0 ? DIRSYMBOL.increasing : DIRSYMBOL.decreasing) + value;
+                return (d.delta > 0 ? cn.DIRSYMBOL.increasing : cn.DIRSYMBOL.decreasing) + value;
             });
             ticker.exit().remove();
 
@@ -193,9 +202,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             data = cd.filter(function() {return isGauge;});
             var gauge = d3.select(this).selectAll('g.gauge').data(data);
             gauge.enter().append('g').classed('gauge', true);
-            gauge.attr('transform', 'translate(' + fullLayout.width / 2 + ',' + verticalMargin + ')');
+            gauge.attr('transform', 'translate(' + centerX + ',' + verticalMargin + ')');
 
-            // Draw gauge min and max
+            // Draw gauge's min and max in text
             var minText = gauge.selectAll('text.min').data(cd);
             minText.enter().append('text').classed('min', true);
             minText
@@ -224,6 +233,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .innerRadius(innerRadius).outerRadius(radius)
                   .startAngle(-theta);
 
+            // TODO: DRY up the following code to draw the different arcs
             // Draw background
             var bgArc = gauge.selectAll('g.bgArc').data(cd);
             bgArc.enter().append('g').classed('bgArc', true).append('path');
@@ -266,6 +276,171 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .style('stroke', trace.gauge.value.line.color)
                   .style('stroke-width', trace.gauge.value.line.width);
             fgArc.exit().remove();
+
+            // Draw bullet
+            data = cd.filter(function() {return isBullet;});
+            // if(isBullet) {
+            //     var mockFigure = {
+            //         data: [],
+            //         layout: {
+            //             xaxis: {
+            //                 type: 'linear',
+            //                 domain: [0, 1],
+            //                 range: [trace.min, trace.max],
+            //             },
+            //             yaxis: {
+            //                 type: 'linear',
+            //                 range: [-0.5, 0.5]
+            //             },
+            //             width: fullLayout.width,
+            //             height: 25,
+            //             margin: { t: 0, b: 0, l: size.l, r: size.r },
+            //             paper_bgcolor: 'rgba(0, 0, 0, 0)'
+            //         },
+            //         _context: gd._context
+            //     };
+            //
+            //     Plots.supplyDefaults(mockFigure);
+            //
+            //     var xa = mockFigure._fullLayout.xaxis;
+            //     var ya = mockFigure._fullLayout.yaxis;
+            //
+            //     xa.clearCalc();
+            //     xa.setScale();
+            //     ya.clearCalc();
+            //     ya.setScale();
+            //
+            //     var plotinfo = {
+            //         xaxis: xa,
+            //         yaxis: ya
+            //     };
+            //     var opts = {
+            //         mode: 'overlay'
+            //     };
+            //     var barWidth = -0.5;
+            //     var cdBarModule = [[{
+            //         i: 0,
+            //         text: 'max',
+            //         mlw: 1,
+            //         s: 0,
+            //         p: 0,
+            //         p0: -barWidth,
+            //         p1: barWidth,
+            //         s0: 0,
+            //         s1: trace.max,
+            //         trace: {orientation: 'h', marker: {color: 'red'}}
+            //     }, {
+            //         i: 0,
+            //         text: 'value',
+            //         mlw: 1,
+            //         p: 0,
+            //         s: trace.target,
+            //         p0: -barWidth,
+            //         p1: barWidth,
+            //         s0: 0,
+            //         s1: trace.target,
+            //         trace: {orientation: 'h', marker: {color: 'red'}}
+            //     }, {
+            //         i: 0,
+            //         text: 'value',
+            //         mlw: 1,
+            //         p: 0,
+            //         s: cd0.y,
+            //         p0: -0.75 * barWidth,
+            //         p1: 0.75 * barWidth,
+            //         s0: 0,
+            //         s1: cd0.y,
+            //         trace: {orientation: 'h', marker: {color: 'red'}}
+            //     }]];
+            //     barPlot(gd, plotinfo, cdBarModule, fullLayout._cartesianlayer, opts);
+            //
+            //     var bars = fullLayout._cartesianlayer.select('.bars');
+            //     bars.attr('transform', 'translate(' + size.l + ',' + 0.95 * size.h + ')');
+            //     bars.selectAll('path').each(function(d, i) {
+            //         var colors = {2: 'green', 1: 'rgba(255, 255, 0, 0.5)', 0: 'rgba(255, 255, 255, 0.25)'};
+            //         d3.select(this).style('fill', colors[i]);
+            //     });
+            //
+            //     Axes.drawOne(gd, xa);
+            //     Axes.drawOne(gd, ya);
+            // }
+            var bulletHeight = 35;
+            var innerBulletHeight = 0.6 * bulletHeight;
+            var bullet = d3.select(this).selectAll('g.bullet').data(data);
+            bullet.enter().append('g').classed('bullet', true);
+            bullet.attr('transform', 'translate(' + size.l + ',' + (verticalMargin + mainFontSize / 2) + ')');
+
+            var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
+            bgBullet.enter().append('g').classed('bgBullet', true).append('rect');
+            bgBullet.select('rect')
+                  .attr('width', size.w)
+                  .attr('height', bulletHeight)
+                  .style('fill', trace.gauge.background.color)
+                  .style('stroke', trace.gauge.background.line.color)
+                  .style('stroke-width', trace.gauge.background.line.width);
+            bgBullet.exit().remove();
+
+            var targetBullet = bullet.selectAll('g.targetBullet').data(cd);
+            targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
+            targetBullet.select('rect')
+                  .attr('width', (trace.target - trace.min) / (trace.max - trace.min) * size.w)
+                  .attr('height', bulletHeight)
+                  // .attr('y', (50 - 25) / 2)
+                  .style('fill', trace.gauge.target.color)
+                  .style('stroke', trace.gauge.target.line.color)
+                  .style('stroke-width', trace.gauge.target.line.width);
+            targetBullet.exit().remove();
+
+            var fgBullet = bullet.selectAll('g.fgBullet').data(cd);
+            fgBullet.enter().append('g').classed('fgBullet', true).append('rect');
+            fgBullet.select('rect')
+                  .attr('height', innerBulletHeight)
+                  .attr('y', (bulletHeight - innerBulletHeight) / 2)
+                  .style('fill', trace.gauge.value.color)
+                  .style('stroke', trace.gauge.value.line.color)
+                  .style('stroke-width', trace.gauge.value.line.width);
+            if(hasTransition) {
+                fgBullet.select('rect')
+                  .transition()
+                  .duration(transitionOpts.duration)
+                  .ease(transitionOpts.easing)
+                  .each('end', function() { onComplete && onComplete(); })
+                  .each('interrupt', function() { onComplete && onComplete(); })
+                  .attr('width', (cd[0].y - trace.min) / (trace.max - trace.min) * size.w);
+            } else {
+                fgBullet.select('rect')
+                  .attr('width', (cd[0].y - trace.min) / (trace.max - trace.min) * size.w);
+            }
+            fgBullet.exit().remove();
+
+            var xaxis = bullet.selectAll('g.xaxislayer-above').data(cd);
+            xaxis.enter().append('g').classed('xaxislayer-above', true);
+            var ticksPos = [trace.min, trace.target, trace.max];
+            var ticks = xaxis.selectAll('g.tick').data(ticksPos);
+            var group = ticks.enter().append('g').classed('tick', true);
+
+            group.append('path');
+            ticks.select('path')
+                .attr('d', 'M0,0V' + 0.1 * bulletHeight)
+                .style('stroke', 'white');
+
+            group.insert('text');
+            ticks.select('text')
+                .text(function(d) { return fmt(d);})
+                .call(Drawing.font, trace.font)
+                .attr({
+                    y: 20,
+                    'text-anchor': 'middle',
+                    'alignment-baseline': 'middle'
+                })
+                .style('fill', 'white');
+
+            ticks
+              .attr('transform', function(d) {
+                  var pos = (d - trace.min) / (trace.max - trace.min) * size.w;
+                  return 'translate(' + pos + ',' + bulletHeight + ')';
+              });
+            ticks.exit().remove();
         });
     });
 };

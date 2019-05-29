@@ -22,8 +22,8 @@ module.exports = function style(gd) {
 
         traceSelection.style({opacity: trace.opacity});
 
-        traceSelection.selectAll('path.surface').each(function(pt) {
-            d3.select(this).call(styleOne, pt, trace);
-        });
+        // traceSelection.selectAll('path.surface').each(function(pt) {
+        //     d3.select(this).call(styleOne, pt, trace);
+        // });
     });
 };

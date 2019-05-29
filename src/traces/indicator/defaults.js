@@ -25,6 +25,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('min');
     coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
     coerce('target');
+    if(traceOut.target > traceOut.max) traceOut.target = traceOut.max;
 
     handleDomainDefaults(traceOut, layout, coerce);
 
