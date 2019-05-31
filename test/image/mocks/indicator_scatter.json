@@ -6,7 +6,7 @@
     },
     "name": "Users online",
     "type": "indicator",
-    "mode": "bignumber",
+    "mode": "bignumber+delta",
     "ticker": {
       "showticker": true,
       "showpercentage": true
