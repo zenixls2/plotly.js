@@ -283,7 +283,7 @@ module.exports = function(canvasGL, d) {
         sampleCount = initialDims[0] ? initialDims[0].values.length : 0;
 
         var lines = model.lines;
-        var color = pick ? lines.color.map(function(_, i) {return i / lines.color.length;}) : lines.color;
+        var color = pick ? lines.color.map(function(_, i) {return i / (lines.color.length - 1);}) : lines.color;
         var contextOpacity = Math.max(1 / 255, Math.pow(1 / color.length, 1 / 3));
 
         var points = makePoints(sampleCount, initialDims, color);
