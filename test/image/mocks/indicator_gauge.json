@@ -2,9 +2,9 @@
   "data": [{
     "name": "Speed",
     "type": "indicator",
-    "mode": "gauge",
-    "ticker": {
-      "showticker": true
+    "mode": "gauge+delta",
+    "delta": {
+      "showpercentage": true
     },
     "max": 500,
     "target": 475,

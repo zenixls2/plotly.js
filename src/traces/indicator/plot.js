@@ -47,12 +47,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var cd0 = cd[0];
         var trace = cd0.trace;
 
-        var hasTicker = trace.ticker.showticker;
-
-        var fmt = d3.format('.3s');
-        var tickerPercentFmt = d3.format('2%');
-
-        // var size = fullLayout._size;
         var domain = trace.domain;
         var size = Lib.extendFlat({}, fullLayout._size, {
             w: fullLayout._size.w * (domain.x[1] - domain.x[0]),
@@ -65,17 +59,21 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var centerX = size.l + size.w / 2;
 
         // bignumber
-        var isBigNumber = trace.mode === 'bignumber';
+        var isBigNumber = trace.mode.indexOf('bignumber') !== -1;
+        var fmt = d3.format('.3s');
+
+        // delta
+        var hasTicker = trace.mode.indexOf('delta') !== -1;
+        var tickerPercentFmt = d3.format('2%');
 
         // trendline
         var hasSparkline = trace.mode === 'sparkline';
         if(hasSparkline) isBigNumber = true;
 
-        // bullet
-        var isBullet = trace.mode === 'bullet';
-
         // gauge related
-        var isGauge = trace.mode === 'gauge';
+        var isGauge = trace.mode.indexOf('gauge') !== -1 && trace.gauge.shape === 'circular';
+        var isBullet = trace.mode.indexOf('gauge') !== -1 && trace.gauge.shape === 'bullet';
+
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = cn.innerRadius * radius;
@@ -96,7 +94,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
             tickerFontSize = 0.35 * mainFontSize;
         }
-        if(isBigNumber) {
+        if(isBigNumber && !isGauge) {
             // Center the text
             mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
             verticalMargin = size.t + size.h / 2;
@@ -107,6 +105,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
             verticalMargin = size.t + size.h / 2;
             tickerFontSize = 0.5 * mainFontSize;
+        }
+        if(hasTicker && !isBigNumber) {
+            mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
+            tickerFontSize = mainFontSize;
         }
         gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
 
@@ -130,7 +132,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             sparkline.exit().remove();
 
             // bignumber
-            var number = d3.select(this).selectAll('text.number').data(cd);
+            data = cd.filter(function() {return isBigNumber;});
+            var number = d3.select(this).selectAll('text.number').data(data);
             number.enter().append('text').classed('number', true);
 
             number.attr({
@@ -193,7 +196,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 return d.delta > 0 ? 'green' : 'red';
             })
             .text(function(d) {
-                var value = trace.ticker.showpercentage ? tickerPercentFmt(d.relativeDelta) : fmt(d.delta);
+                var value = trace.delta.showpercentage ? tickerPercentFmt(d.relativeDelta) : fmt(d.delta);
                 return (d.delta > 0 ? cn.DIRSYMBOL.increasing : cn.DIRSYMBOL.decreasing) + value;
             });
             ticker.exit().remove();

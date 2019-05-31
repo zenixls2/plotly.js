@@ -63,10 +63,10 @@ var gaugeArcAttr = {
 
 module.exports = {
     mode: {
-        valType: 'enumerated',
+        valType: 'flaglist',
         editType: 'calc',
         role: 'info',
-        values: ['gauge', 'bignumber', 'sparkline', 'bullet'],
+        flags: ['bignumber', 'delta', 'gauge'],
         dflt: 'bignumber'
     },
     values: {
@@ -121,16 +121,7 @@ module.exports = {
         ].join(' ')
     }),
 
-    ticker: {
-        showticker: {
-            valType: 'boolean',
-            editType: 'style',
-            role: 'style',
-            dflt: false,
-            description: [
-                'Show a ticker'
-            ].join(' ')
-        },
+    delta: {
         showpercentage: {
             valType: 'boolean',
             editType: 'style',
@@ -143,6 +134,16 @@ module.exports = {
         editType: 'style'
     },
     gauge: {
+        shape: {
+            valType: 'enumerated',
+            editType: 'style',
+            role: 'style',
+            dflt: 'circular',
+            values: ['circular', 'bullet'],
+            description: [
+                'Set the shape of the gauge'
+            ].join(' ')
+        },
         background: extendFlat({}, gaugeArcAttr, {
             description: [
                 'Set the appearance of the gauge\'s background'

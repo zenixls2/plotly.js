@@ -2,9 +2,8 @@
   "data": [{
     "name": "Accounts",
     "type": "indicator",
-    "mode": "bignumber",
-    "ticker": {
-      "showticker": true,
+    "mode": "bignumber+delta",
+    "delta": {
       "showpercentage": true
     },
     "max": 500,
