@@ -47,6 +47,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var cd0 = cd[0];
         var trace = cd0.trace;
 
+        // Domain size
         var domain = trace.domain;
         var size = Lib.extendFlat({}, fullLayout._size, {
             w: fullLayout._size.w * (domain.x[1] - domain.x[0]),
@@ -56,7 +57,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             t: Math.max(fullLayout._size.t, fullLayout.height * domain.y[0]),
             b: Math.max(fullLayout._size.b, fullLayout.height * (1 - domain.y[0]))
         });
-        var centerX = size.l + size.w / 2;
 
         // bignumber
         var isBigNumber = trace.mode.indexOf('bignumber') !== -1;
@@ -66,18 +66,18 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var hasTicker = trace.mode.indexOf('delta') !== -1;
         var tickerPercentFmt = d3.format('2%');
 
-        // trendline
-        var hasSparkline = trace.mode === 'sparkline';
-        if(hasSparkline) isBigNumber = true;
-
         // gauge related
         var isGauge = trace.mode.indexOf('gauge') !== -1;
-        var isCircular = isGauge && trace.gauge.shape === 'circular';
-        var isBullet = isGauge && trace.gauge.shape === 'bullet';
 
+        // circular gauge
+        var isCircular = isGauge && trace.gauge.shape === 'circular';
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = cn.innerRadius * radius;
+
+        // bullet gauge
+        var isBullet = isGauge && trace.gauge.shape === 'bullet';
+
         var isWide = !(size.h > radius);
 
         function valueToAngle(v) {
@@ -87,60 +87,60 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             return angle;
         }
 
+        // TODO: Move the following to defaults
+        // Position elements
         var bignumberVerticalMargin, mainFontSize;
-        var tickerVerticalMargin, tickerFontSize, gaugeFontSize;
-        if(isBigNumber && !isGauge) {
-            // Center the text
-            mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
-            bignumberVerticalMargin = size.t + size.h / 2;
-            tickerFontSize = 0.5 * mainFontSize;
+        var tickerVerticalMargin, tickerFontSize, tickerBaseline;
+        var gaugeFontSize;
+        var labelFontSize;
+        var centerX = size.l + size.w / 2;
+
+        if(!isGauge) {
+            // when no gauge, we are only constrained by figure size
+            if(isBigNumber) {
+                // Center the text vertically
+                mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
+                tickerFontSize = 0.5 * mainFontSize;
+                bignumberVerticalMargin = size.t + size.h / 2;
+                tickerVerticalMargin = size.t + size.h - tickerFontSize / 2;
+            } else {
+                mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
+                tickerFontSize = mainFontSize;
+                bignumberVerticalMargin = 0;
+                tickerVerticalMargin = size.t + size.h / 2;
+            }
+            labelFontSize = 0.35 * mainFontSize;
+        } else {
+            if(isCircular) {
+                bignumberVerticalMargin = size.t + size.h;
+                if(!isWide) bignumberVerticalMargin -= (size.h - radius) / 2;
+                // TODO: check formatted size of the number
+                mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
+                tickerFontSize = 0.35 * mainFontSize;
+            }
+            if(isBullet) {
+                // Center the text
+                mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
+                bignumberVerticalMargin = size.t + size.h / 2;
+                tickerFontSize = 0.5 * mainFontSize;
+            }
+            gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
+            labelFontSize = gaugeFontSize;
+
+            if(!isBigNumber) {
+                tickerFontSize = 0.75 * mainFontSize;
+                tickerVerticalMargin = bignumberVerticalMargin;
+                tickerBaseline = 'bottom';
+            } else {
+                tickerVerticalMargin = bignumberVerticalMargin + tickerFontSize;
+            }
         }
-        if(hasTicker && !isGauge && !isBigNumber) {
-            bignumberVerticalMargin = 0;
-            tickerVerticalMargin = size.t + size.h / 2;
-            mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
-            tickerFontSize = mainFontSize;
-        }
-        if(isCircular) {
-            bignumberVerticalMargin = size.t + size.h;
-            if(!isWide) bignumberVerticalMargin -= (size.h - radius) / 2;
-            // TODO: check formatted size of the number
-            mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
-            tickerFontSize = 0.35 * mainFontSize;
-        }
-        if(isBullet) {
-            // Center the text
-            mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
-            bignumberVerticalMargin = size.t + size.h / 2;
-            tickerFontSize = 0.5 * mainFontSize;
-        }
-        gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
-        if(!tickerVerticalMargin) tickerVerticalMargin = !isGauge ? size.t + size.h - tickerFontSize / 2 : bignumberVerticalMargin + tickerFontSize;
 
         plotGroup.each(function() {
-            var data;
-            // Draw trendline
-            data = cd.filter(function() {return hasSparkline;});
-            var x = d3.scale.linear().domain([trace.min, cd0.historical.length - 1]).range([0, size.w]);
-            var y = d3.scale.linear().domain([trace.min, trace.max]).range([size.h, 0]);
-            var line = d3.svg.line()
-              .x(function(d, i) { return x(i);})
-              .y(function(d) { return y(d);});
-            var sparkline = d3.select(this).selectAll('path.sparkline').data(data);
-            sparkline.enter().append('svg:path').classed('sparkline', true);
-            sparkline
-              .attr('d', line(cd0.historical))
-              .style('fill', 'none')
-              .style('stroke', 'rgba(255, 255, 255, 0.5)')
-              .style('stroke-width', 2)
-              .attr('transform', 'translate(' + size.l + ', ' + size.t + ')');
-            sparkline.exit().remove();
-
             // bignumber
-            data = cd.filter(function() {return isBigNumber;});
+            var data = cd.filter(function() {return isBigNumber;});
             var number = d3.select(this).selectAll('text.number').data(data);
             number.enter().append('text').classed('number', true);
-
             number.attr({
                 x: centerX,
                 y: bignumberVerticalMargin,
@@ -177,7 +177,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 x: centerX,
                 y: tickerVerticalMargin,
                 'text-anchor': 'middle',
-                'alignment-baseline': 'middle'
+                'alignment-baseline': tickerBaseline || 'middle'
             })
             .call(Drawing.font, trace.font)
             .style('font-size', tickerFontSize)
@@ -195,12 +195,12 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             name.enter().append('text').classed('name', true);
             name.attr({
                 x: centerX,
-                y: size.t + gaugeFontSize / 2,
+                y: size.t + labelFontSize / 2,
                 'text-anchor': 'middle',
                 'alignment-baseline': 'middle'
             })
             .call(Drawing.font, trace.font)
-            .style('font-size', gaugeFontSize)
+            .style('font-size', labelFontSize)
             .text(trace.name);
             name.exit().remove();
 
