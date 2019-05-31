@@ -1,8 +1,9 @@
 {
   "data": [{
+    "domain": {"y": [0, 0.4]},
     "name": "Speed",
     "type": "indicator",
-    "mode": "gauge",
+    "mode": "bignumber+gauge",
     "ticker": {
       "showticker": false
     },
@@ -26,16 +27,45 @@
       "color": "white",
       "family": "Dosis"
     }
+  },
+  {
+    "domain": {"y": [0.6, 1]},
+    "name": "Temperature",
+    "type": "indicator",
+    "mode": "bignumber+gauge",
+    "ticker": {
+      "showticker": false
+    },
+    "max": 100,
+    "target": 60,
+    "gauge": {
+      "shape": "bullet",
+      "background": {
+        "color": "rgba(255, 255, 255, 0.25)",
+        "line": {
+          "width": 2,
+          "color": "rgba(255, 255, 255, 0.5)"
+        }
+      },
+      "target": {
+        "color": "rgba(255, 255, 0, 0.5)"
+      }
+    },
+    "values": [63, 55],
+    "font": {
+      "color": "white",
+      "family": "Dosis"
+    }
   }],
   "layout": {
     "width": 375,
-    "height": 250,
+    "height": 300,
     "paper_bgcolor": "black",
     "margin": {
       "t": 25,
-      "r": 25,
+      "r": 0,
       "l": 25,
-      "b": 25
+      "b": 15
     }
   },
   "config": {
