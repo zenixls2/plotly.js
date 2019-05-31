@@ -121,6 +121,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
                 labelFontSize = gaugeFontSize;
                 tickerVerticalMargin = bignumberVerticalMargin + tickerFontSize;
+                if(!isBigNumber) tickerBaseline = 'bottom';
             }
             if(isBullet) {
                 // Center the text
@@ -136,7 +137,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             if(!isBigNumber) {
                 tickerFontSize = 0.75 * mainFontSize;
                 tickerVerticalMargin = bignumberVerticalMargin;
-                tickerBaseline = 'bottom';
             }
         }
 
@@ -381,7 +381,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             bullet.enter().append('g').classed('bullet', true);
             bullet.attr('transform', 'translate(' + size.l + ',' + bulletVerticalMargin + ')');
 
-            var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, 0.75 * size.w]);
+            var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, ((isBigNumber || hasTicker) ? 0.75 : 1.0) * size.w]);
 
             var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
             bgBullet.enter().append('g').classed('bgBullet', true).append('rect');
