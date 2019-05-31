@@ -25,7 +25,7 @@ function calc(gd, trace) {
         delta: lastReading - secondLastReading,
         relativeDelta: (lastReading - secondLastReading) / secondLastReading,
 
-        historical: trace.values,
+        historical: trace.values
 
     };
     return cd;
