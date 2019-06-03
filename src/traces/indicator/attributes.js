@@ -16,6 +16,7 @@ var extendDeep = require('../../lib/extend').extendDeep;
 var fontAttrs = require('../../plots/font_attributes');
 var colorAttrs = require('../../components/color/attributes');
 var domainAttrs = require('../../plots/domain').attributes;
+var cn = require('./constants.js');
 
 var textFontAttrs = fontAttrs({
     editType: 'plot',
@@ -113,7 +114,7 @@ module.exports = {
         ].join(' ')
     },
 
-    // position and shape
+    // position
     domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
     font: extendFlat({}, textFontAttrs, {
         description: [
@@ -121,18 +122,6 @@ module.exports = {
         ].join(' ')
     }),
 
-    delta: {
-        showpercentage: {
-            valType: 'boolean',
-            editType: 'style',
-            role: 'style',
-            dflt: false,
-            description: [
-                'Show relative change in percentage'
-            ].join(' ')
-        },
-        editType: 'style'
-    },
     gauge: {
         shape: {
             valType: 'enumerated',
@@ -162,5 +151,52 @@ module.exports = {
         }),
         description: 'The gauge of the Indicator plot.',
         editType: 'plot'
+    },
+    delta: {
+        showpercentage: {
+            valType: 'boolean',
+            editType: 'style',
+            role: 'style',
+            dflt: false,
+            description: [
+                'Show relative change in percentage'
+            ].join(' ')
+        },
+        valueformat: {
+            valType: 'string',
+            dflt: '.3s',
+            role: 'style',
+            editType: 'plot',
+            description: [
+                'Sets the value formatting rule using d3 formatting mini-language',
+                'which is similar to those of Python. See',
+                'https://github.com/d3/d3-format/blob/master/README.md#locale_format'
+            ].join(' ')
+        },
+        increasing: {
+            color: {
+                valType: 'color',
+                role: 'style',
+                dflt: cn.INCREASING_COLOR,
+                editType: 'style',
+                description: [
+                    'Sets the color for increasing value.'
+                ].join(' ')
+            },
+            editType: 'style'
+        },
+        decreasing: {
+            color: {
+                valType: 'color',
+                role: 'style',
+                dflt: cn.DECREASING_COLOR,
+                editType: 'style',
+                description: [
+                    'Sets the color for increasing value.'
+                ].join(' ')
+            },
+            editType: 'style'
+        },
+        editType: 'calc'
     }
 };

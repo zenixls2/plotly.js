@@ -22,6 +22,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
 
     coerce('mode');
     coerce('values');
+    coerce('valueformat');
     coerce('min');
     coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
     coerce('target');
@@ -55,4 +56,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
 
     // ticker attributes
     coerce('delta.showpercentage');
+    coerce('delta.valueformat', traceOut.delta.showpercentage ? '2%' : traceOut.valueformat);
+    coerce('delta.increasing.color');
+    coerce('delta.decreasing.color');
 };

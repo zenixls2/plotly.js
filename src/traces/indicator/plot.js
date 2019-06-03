@@ -60,11 +60,19 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         // bignumber
         var isBigNumber = trace.mode.indexOf('bignumber') !== -1;
-        var fmt = d3.format('.3s');
+        var fmt = d3.format(trace.valueformat);
 
         // delta
         var hasTicker = trace.mode.indexOf('delta') !== -1;
-        var tickerPercentFmt = d3.format('2%');
+        var tickerFmt = d3.format(trace.delta.valueformat);
+        var tickerText = function(d) {
+            if(d.delta === 0) return '-';
+            var value = trace.delta.showpercentage ? tickerFmt(d.relativeDelta) : tickerFmt(d.delta);
+            return (d.delta > 0 ? cn.DIRSYMBOL.increasing : cn.DIRSYMBOL.decreasing) + value;
+        };
+        var tickerFill = function(d) {
+            return d.delta > 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
+        };
 
         // gauge related
         var isGauge = trace.mode.indexOf('gauge') !== -1;
@@ -185,13 +193,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             })
             .call(Drawing.font, trace.font)
             .style('font-size', tickerFontSize)
-            .style('fill', function(d) {
-                return d.delta > 0 ? 'green' : 'red';
-            })
-            .text(function(d) {
-                var value = trace.delta.showpercentage ? tickerPercentFmt(d.relativeDelta) : fmt(d.delta);
-                return (d.delta > 0 ? cn.DIRSYMBOL.increasing : cn.DIRSYMBOL.decreasing) + value;
-            });
+            .style('fill', tickerFill)
+            .text(tickerText);
             ticker.exit().remove();
 
             // Trace name

@@ -1,6 +1,7 @@
 {
   "data": [{
     "domain": {"x": [0, 0.474], "y": [0, 1]},
+    "values": [400, 450],
     "name": "Speed",
     "type": "indicator",
     "mode": "gauge+bignumber+delta",
@@ -20,10 +21,10 @@
       "target": {
         "color": "rgba(255, 255, 0, 0.5)"
       }
-    },
-    "values": [400, 450]
+    }
   }, {
     "domain": {"x": [0.474, 0.789], "y": [0, 0.666]},
+    "values": [400, 450],
     "name": "Speed",
     "type": "indicator",
     "mode": "gauge+bignumber+delta",
@@ -43,10 +44,10 @@
       "target": {
         "color": "rgba(255, 255, 0, 0.5)"
       }
-    },
-    "values": [400, 450]
+    }
   },{
     "domain": {"x": [0.789, 1], "y": [0, 0.333]},
+    "values": [400, 450],
     "name": "Speed",
     "type": "indicator",
     "mode": "gauge+bignumber+delta",
@@ -66,31 +67,7 @@
       "target": {
         "color": "rgba(255, 255, 0, 0.5)"
       }
-    },
-    "values": [400, 450]
-  },{
-    "domain": {"x": [0.789, 1], "y": [0.333, 0.333]},
-    "name": "Speed",
-    "type": "indicator",
-    "mode": "gauge+bignumber+delta",
-    "ticker": {
-      "showticker": true
-    },
-    "max": 500,
-    "target": 475,
-    "gauge": {
-      "background": {
-        "color": "rgba(255, 255, 255, 0.25)",
-        "line": {
-          "width": 2,
-          "color": "rgba(255, 255, 255, 0.5)"
-        }
-      },
-      "target": {
-        "color": "rgba(255, 255, 0, 0.5)"
-      }
-    },
-    "values": [400, 450]
+    }
   }],
   "layout": {
     "width": 900,
@@ -104,7 +81,7 @@
     },
     "font": {
       "color": "white",
-      "family": "Dosis"
+      "family": "Arial"
     }
   },
   "config": {
