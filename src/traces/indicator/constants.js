@@ -11,10 +11,12 @@
 module.exports = {
     INCREASING_COLOR: '#3D9970',
     DECREASING_COLOR: '#FF4136',
-    // TODO: DIRSYMBOL into attributes
+    // TODO: make the following constants overridable via attributes
     DIRSYMBOL: {
         increasing: '▲',
         decreasing: '▼'
     },
-    innerRadius: 0.75
+    bulletHeight: 35,
+    innerRadius: 0.75,
+    valueHeight: 0.5
 };

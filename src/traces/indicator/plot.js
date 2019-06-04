@@ -245,6 +245,11 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .innerRadius(innerRadius).outerRadius(radius)
                   .startAngle(-theta);
 
+            var valueArcPath = d3.svg.arc()
+                  .innerRadius((innerRadius + radius) / 2 - cn.valueHeight / 2 * (radius - innerRadius))
+                  .outerRadius((innerRadius + radius) / 2 + cn.valueHeight / 2 * (radius - innerRadius))
+                  .startAngle(-theta);
+
             // TODO: DRY up the following code to draw the different arcs
             // Draw background
             var bgArc = gauge.selectAll('g.bgArc').data(cd);
@@ -278,10 +283,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                       .ease(transitionOpts.easing)
                       .each('end', function() { onComplete && onComplete(); })
                       .each('interrupt', function() { onComplete && onComplete(); })
-                      .attrTween('d', arcTween(arcPath, valueToAngle(cd[0].lastY), valueToAngle(cd[0].y)));
+                      .attrTween('d', arcTween(valueArcPath, valueToAngle(cd[0].lastY), valueToAngle(cd[0].y)));
             } else {
                 fgArcPath
-                      .attr('d', arcPath.endAngle(valueToAngle(cd[0].y)));
+                      .attr('d', valueArcPath.endAngle(valueToAngle(cd[0].y)));
             }
             fgArcPath
                   .style('fill', trace.gauge.value.color)
@@ -376,8 +381,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             //     Axes.drawOne(gd, xa);
             //     Axes.drawOne(gd, ya);
             // }
-            var bulletHeight = 35;
-            var innerBulletHeight = 0.6 * bulletHeight;
+            var bulletHeight = cn.bulletHeight;
+            var innerBulletHeight = cn.valueHeight * bulletHeight;
             var bulletVerticalMargin = bignumberVerticalMargin - bulletHeight / 2;
             var bullet = d3.select(this).selectAll('g.bullet').data(data);
             bullet.enter().append('g').classed('bullet', true);
