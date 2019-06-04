@@ -14,6 +14,7 @@
       "threshold": {
         "color": "rgba(255, 255, 255, 0.5)",
         "width": 2,
+        "height": 0.75,
         "value": 450
       },
       "background": {
