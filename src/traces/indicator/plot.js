@@ -59,26 +59,26 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         });
 
         // bignumber
-        var isBigNumber = trace.mode.indexOf('bignumber') !== -1;
+        var hasBigNumber = trace.mode.indexOf('bignumber') !== -1;
         var fmt = d3.format(trace.valueformat);
 
         // delta
-        var hasTicker = trace.mode.indexOf('delta') !== -1;
-        var tickerFmt = d3.format(trace.delta.valueformat);
-        var tickerText = function(d) {
+        var hasDelta = trace.mode.indexOf('delta') !== -1;
+        var deltaFmt = d3.format(trace.delta.valueformat);
+        var deltaText = function(d) {
             if(d.delta === 0) return '-';
-            var value = trace.delta.showpercentage ? tickerFmt(d.relativeDelta) : tickerFmt(d.delta);
+            var value = trace.delta.showpercentage ? deltaFmt(d.relativeDelta) : deltaFmt(d.delta);
             return (d.delta > 0 ? cn.DIRSYMBOL.increasing : cn.DIRSYMBOL.decreasing) + value;
         };
-        var tickerFill = function(d) {
+        var deltaFill = function(d) {
             return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
         };
 
         // gauge related
-        var isGauge = trace.mode.indexOf('gauge') !== -1;
+        var hasGauge = trace.mode.indexOf('gauge') !== -1;
 
         // circular gauge
-        var isCircular = isGauge && trace.gauge.shape === 'circular';
+        var isCircular = hasGauge && trace.gauge.shape === 'circular';
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = cn.innerRadius * radius;
@@ -90,32 +90,32 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
 
         // bullet gauge
-        var isBullet = isGauge && trace.gauge.shape === 'bullet';
+        var isBullet = hasGauge && trace.gauge.shape === 'bullet';
 
         var isWide = !(size.h > radius);
 
         // TODO: Move the following to defaults
         // Position elements
         var bignumberVerticalMargin, mainFontSize, bignumberX;
-        var tickerVerticalMargin, tickerFontSize, tickerBaseline;
+        var deltaVerticalMargin, deltaFontSize, deltaBaseline;
         var gaugeFontSize;
         var labelFontSize;
         var centerX = size.l + size.w / 2;
         bignumberX = centerX;
 
-        if(!isGauge) {
+        if(!hasGauge) {
             // when no gauge, we are only constrained by figure size
-            if(isBigNumber) {
+            if(hasBigNumber) {
                 // Center the text vertically
                 mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
-                tickerFontSize = 0.5 * mainFontSize;
+                deltaFontSize = 0.5 * mainFontSize;
                 bignumberVerticalMargin = size.t + size.h / 2;
-                tickerVerticalMargin = size.t + size.h - tickerFontSize / 2;
+                deltaVerticalMargin = size.t + size.h - deltaFontSize / 2;
             } else {
                 mainFontSize = Math.min(size.w / (trace.max.toString().length + 2), size.h / 2);
-                tickerFontSize = mainFontSize;
+                deltaFontSize = mainFontSize;
                 bignumberVerticalMargin = 0;
-                tickerVerticalMargin = size.t + size.h / 2;
+                deltaVerticalMargin = size.t + size.h / 2;
             }
             labelFontSize = 0.35 * mainFontSize;
         } else {
@@ -124,11 +124,11 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 if(!isWide) bignumberVerticalMargin -= (size.h - radius) / 2;
                 // TODO: check formatted size of the number
                 mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
-                tickerFontSize = 0.35 * mainFontSize;
+                deltaFontSize = 0.35 * mainFontSize;
                 gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
                 labelFontSize = gaugeFontSize;
-                tickerVerticalMargin = bignumberVerticalMargin + tickerFontSize;
-                if(!isBigNumber) tickerBaseline = 'bottom';
+                deltaVerticalMargin = bignumberVerticalMargin + deltaFontSize;
+                if(!hasBigNumber) deltaBaseline = 'bottom';
             }
             if(isBullet) {
                 // Center the text
@@ -136,20 +136,20 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 mainFontSize = Math.min(0.25 * size.w / (trace.max.toString().length), size.h / 2);
                 bignumberVerticalMargin = size.t + size.h / 2;
                 bignumberX = size.l + (p + (1 - p) / 2) * size.w;
-                tickerFontSize = 0.5 * mainFontSize;
-                tickerVerticalMargin = bignumberVerticalMargin + 1.5 * tickerFontSize;
+                deltaFontSize = 0.5 * mainFontSize;
+                deltaVerticalMargin = bignumberVerticalMargin + 1.5 * deltaFontSize;
                 labelFontSize = 0.75 * mainFontSize;
             }
 
-            if(!isBigNumber) {
-                tickerFontSize = 0.75 * mainFontSize;
-                tickerVerticalMargin = bignumberVerticalMargin;
+            if(!hasBigNumber) {
+                deltaFontSize = 0.75 * mainFontSize;
+                deltaVerticalMargin = bignumberVerticalMargin;
             }
         }
 
         plotGroup.each(function() {
             // bignumber
-            var data = cd.filter(function() {return isBigNumber;});
+            var data = cd.filter(function() {return hasBigNumber;});
             var number = d3.select(this).selectAll('text.number').data(data);
             number.enter().append('text').classed('number', true);
             number.attr({
@@ -180,21 +180,21 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             }
             number.exit().remove();
 
-            // Ticker
-            data = cd.filter(function() {return hasTicker;});
-            var ticker = d3.select(this).selectAll('text.ticker').data(data);
-            ticker.enter().append('text').classed('ticker', true);
-            ticker.attr({
+            // delta
+            data = cd.filter(function() {return hasDelta;});
+            var delta = d3.select(this).selectAll('text.delta').data(data);
+            delta.enter().append('text').classed('delta', true);
+            delta.attr({
                 x: bignumberX,
-                y: tickerVerticalMargin,
+                y: deltaVerticalMargin,
                 'text-anchor': 'middle',
-                'alignment-baseline': tickerBaseline || 'central'
+                'alignment-baseline': deltaBaseline || 'central'
             })
             .call(Drawing.font, trace.font)
-            .style('font-size', tickerFontSize)
-            .style('fill', tickerFill)
-            .text(tickerText);
-            ticker.exit().remove();
+            .style('font-size', deltaFontSize)
+            .style('fill', deltaFill)
+            .text(deltaText);
+            delta.exit().remove();
 
             // Trace name
             var name = d3.select(this).selectAll('text.name').data(cd);
@@ -383,7 +383,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             bullet.enter().append('g').classed('bullet', true);
             bullet.attr('transform', 'translate(' + size.l + ',' + bulletVerticalMargin + ')');
 
-            var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, ((isBigNumber || hasTicker) ? 0.75 : 1.0) * size.w]);
+            var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, ((hasBigNumber || hasDelta) ? 0.75 : 1.0) * size.w]);
 
             var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
             bgBullet.enter().append('g').classed('bgBullet', true).append('rect');
