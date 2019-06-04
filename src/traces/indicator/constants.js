@@ -8,10 +8,10 @@
 
 'use strict';
 
-// TODO: turn those constants into attributes
 module.exports = {
     INCREASING_COLOR: '#3D9970',
     DECREASING_COLOR: '#FF4136',
+    // TODO: DIRSYMBOL into attributes
     DIRSYMBOL: {
         increasing: '▲',
         decreasing: '▼'

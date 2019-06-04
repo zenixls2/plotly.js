@@ -12,13 +12,13 @@ var d3 = require('d3');
 
 var Lib = require('../../lib');
 var Drawing = require('../../components/drawing');
+var cn = require('./constants');
 // var Plots = require('../../plots/plots');
 // var Axes = require('../../plots/cartesian/axes');
 // var svgTextUtils = require('../../lib/svg_text_utils');
 //
 // // arc cotangent
 // function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
-var cn = require('./constants');
 // var barPlot = require('../bar/plot').plot;
 
 module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallback) {
@@ -71,7 +71,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             return (d.delta > 0 ? cn.DIRSYMBOL.increasing : cn.DIRSYMBOL.decreasing) + value;
         };
         var tickerFill = function(d) {
-            return d.delta > 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
+            return d.delta >= 0 ? trace.delta.increasing.color : trace.delta.decreasing.color;
         };
 
         // gauge related
@@ -82,18 +82,17 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = cn.innerRadius * radius;
-
-        // bullet gauge
-        var isBullet = isGauge && trace.gauge.shape === 'bullet';
-
-        var isWide = !(size.h > radius);
-
         function valueToAngle(v) {
             var angle = (v - trace.min) / (trace.max - trace.min) * Math.PI - Math.PI / 2;
             if(angle < -theta) return -theta;
             if(angle > theta) return theta;
             return angle;
         }
+
+        // bullet gauge
+        var isBullet = isGauge && trace.gauge.shape === 'bullet';
+
+        var isWide = !(size.h > radius);
 
         // TODO: Move the following to defaults
         // Position elements

@@ -108,6 +108,7 @@ module.exports = {
     target: {
         valType: 'number',
         editType: 'calc',
+        dflt: 0,
         role: 'info',
         description: [
             'Sets a target value.'
