@@ -11,8 +11,8 @@
       "threshold": {
         "color": "black",
         "width": 2,
-        "height": 0.75,
-        "value": 220
+        "size": 0.75,
+        "value": 170
       },
       "background": {
         "color": "rgba(0, 0, 0, 0.1)",
@@ -28,7 +28,7 @@
         "color": "rgba(0, 0, 0, 1)"
       }
     },
-    "values": [125, 175]
+    "values": [125, 180]
   }, {
     "domain": {"y": [0.33, 0.66]},
     "name": "<b>Profit</b><br><span style='color: gray; font-size:0.8em'>%</span>",
@@ -38,6 +38,12 @@
     "target": 75,
     "gauge": {
       "shape": "bullet",
+      "threshold": {
+        "color": "black",
+        "width": 2,
+        "size": 0.75,
+        "value": 50
+      },
       "background": {
         "color": "rgba(0, 0, 0, 0.1)",
         "line": {

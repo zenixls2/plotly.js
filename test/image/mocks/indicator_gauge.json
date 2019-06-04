@@ -24,7 +24,7 @@
       "threshold": {
         "color": "rgba(0, 0, 255, 1)",
         "width": 4,
-        "height": 0.75,
+        "size": 0.75,
         "value": 100
       }
     }
