@@ -10,9 +10,9 @@
 
 var d3 = require('d3');
 
-function styleOne() {
-    return true;
-}
+// function styleOne() {
+//     return true;
+// }
 
 module.exports = function style(gd) {
     gd._fullLayout._indicatorlayer.selectAll('.trace').each(function(cd) {

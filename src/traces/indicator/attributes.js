@@ -128,8 +128,8 @@ module.exports = {
             valType: 'enumerated',
             editType: 'style',
             role: 'style',
-            dflt: 'circular',
-            values: ['circular', 'bullet'],
+            dflt: 'angular',
+            values: ['angular', 'bullet'],
             description: [
                 'Set the shape of the gauge'
             ].join(' ')

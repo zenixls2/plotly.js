@@ -78,7 +78,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var hasGauge = trace.mode.indexOf('gauge') !== -1;
 
         // circular gauge
-        var isCircular = hasGauge && trace.gauge.shape === 'circular';
+        var isAngular = hasGauge && trace.gauge.shape === 'angular';
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
         var innerRadius = cn.innerRadius * radius;
@@ -119,7 +119,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             }
             labelFontSize = 0.35 * mainFontSize;
         } else {
-            if(isCircular) {
+            if(isAngular) {
                 bignumberVerticalMargin = size.t + size.h;
                 if(!isWide) bignumberVerticalMargin -= (size.h - radius) / 2;
                 // TODO: check formatted size of the number
@@ -156,7 +156,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 x: bignumberX,
                 y: bignumberVerticalMargin,
                 'text-anchor': 'middle',
-                'alignment-baseline': isCircular ? 'bottom' : 'central'
+                'alignment-baseline': isAngular ? 'bottom' : 'central'
             })
             .call(Drawing.font, trace.font)
             .style('font-size', mainFontSize);
@@ -211,7 +211,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             name.exit().remove();
 
             // Draw circular gauge
-            data = cd.filter(function() {return isCircular;});
+            data = cd.filter(function() {return isAngular;});
             var gauge = d3.select(this).selectAll('g.gauge').data(data);
             gauge.enter().append('g').classed('gauge', true);
             gauge.attr('transform', 'translate(' + centerX + ',' + bignumberVerticalMargin + ')');
