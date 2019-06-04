@@ -50,7 +50,7 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerceGauge('value.color');
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
-    var defaultValueSize = cn.valueHeight * (traceOut.gauge.shape === 'bullet' ? 0.25 : 0.5);
+    var defaultValueSize = cn.valueHeight * (traceOut.gauge.shape === 'bullet' ? 0.5 : 1);
     coerceGauge('value.size', defaultValueSize);
     coerceGauge('target.color');
     coerceGauge('target.line.color');
