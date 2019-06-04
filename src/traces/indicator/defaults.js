@@ -39,7 +39,6 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     // gauge attributes
     var gaugeIn = traceIn.gauge;
     var gaugeOut = Template.newContainer(traceOut, 'gauge');
-
     function coerceGauge(attr, dflt) {
         return Lib.coerce(gaugeIn, gaugeOut, attributes.gauge, attr, dflt);
     }
@@ -53,6 +52,11 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerceGauge('target.color');
     coerceGauge('target.line.color');
     coerceGauge('target.line.width');
+
+    coerceGauge('threshold.value');
+    coerceGauge('threshold.height');
+    coerceGauge('threshold.width');
+    coerceGauge('threshold.color');
 
     // ticker attributes
     coerce('delta.showpercentage');

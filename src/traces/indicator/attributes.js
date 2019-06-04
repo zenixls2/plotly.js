@@ -150,8 +150,50 @@ module.exports = {
                 'Set the appearance of the gauge\'s target'
             ].join(' ')
         }),
+        threshold: {
+            color: {
+                valType: 'color',
+                role: 'style',
+                dflt: colorAttrs.defaultLine,
+                editType: 'style',
+                description: [
+                    'Sets the color of the threshold line.'
+                ].join(' ')
+            },
+            height: {
+                valType: 'number',
+                role: 'style',
+                min: 0,
+                max: 1,
+                dflt: 0.5,
+                editType: 'style',
+                description: [
+                    'Sets the height of the threshold line has a fraction.'
+                ].join(' ')
+            },
+            width: {
+                valType: 'number',
+                role: 'style',
+                min: 0,
+                dflt: 1,
+                editType: 'style',
+                description: [
+                    'Sets the width (in px) of the threshold line.'
+                ].join(' ')
+            },
+            value: {
+                valType: 'number',
+                editType: 'calc',
+                dflt: false,
+                role: 'info',
+                description: [
+                    'Sets a treshold value drawn as a line.'
+                ].join(' ')
+            }
+        },
         description: 'The gauge of the Indicator plot.',
         editType: 'plot'
+        // TODO: in future version, add marker: (bar|needle)
     },
     delta: {
         showpercentage: {

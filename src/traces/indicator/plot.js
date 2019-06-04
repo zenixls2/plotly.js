@@ -295,7 +295,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             fgArc.exit().remove();
 
             // Draw bullet
-            data = cd.filter(function() {return isBullet;});
             // if(isBullet) {
             //     var mockFigure = {
             //         data: [],
@@ -381,6 +380,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             //     Axes.drawOne(gd, xa);
             //     Axes.drawOne(gd, ya);
             // }
+            data = cd.filter(function() {return isBullet;});
             var bulletHeight = cn.bulletHeight;
             var innerBulletHeight = cn.valueHeight * bulletHeight;
             var bulletVerticalMargin = bignumberVerticalMargin - bulletHeight / 2;
@@ -390,6 +390,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
             var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, ((hasBigNumber || hasDelta) ? 0.75 : 1.0) * size.w]);
 
+            // TODO: prevent rect width from being negative
             var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
             bgBullet.enter().append('g').classed('bgBullet', true).append('rect');
             bgBullet.select('rect')
@@ -433,6 +434,19 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             }
             fgBullet.exit().remove();
 
+            data = cd.filter(function() {return trace.gauge.threshold.value;});
+            var threshold = bullet.selectAll('g.threshold').data(data);
+            threshold.enter().append('g').classed('threshold', true).append('line');
+            threshold.select('line')
+                .attr('x1', scale(trace.gauge.threshold.value))
+                .attr('x2', scale(trace.gauge.threshold.value))
+                .attr('y1', 0.25 / 2 * bulletHeight)
+                .attr('y2', (1 - 0.25 / 2) * bulletHeight)
+                .style('stroke', trace.gauge.threshold.color)
+                .style('stroke-width', trace.gauge.threshold.width);
+            threshold.exit().remove();
+
+            // Draw x axis and ticks
             var xaxis = bullet.selectAll('g.xaxislayer-above').data(cd);
             xaxis.enter().append('g').classed('xaxislayer-above', true);
             var ticksPos = [trace.min, trace.target, trace.max];

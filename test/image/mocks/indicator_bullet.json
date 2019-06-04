@@ -11,6 +11,11 @@
     "target": 300,
     "gauge": {
       "shape": "bullet",
+      "threshold": {
+        "color": "rgba(255, 255, 255, 0.5)",
+        "width": 2,
+        "value": 450
+      },
       "background": {
         "color": "rgba(255, 255, 255, 0.25)",
         "line": {
