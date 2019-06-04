@@ -141,6 +141,16 @@ module.exports = {
         }),
         value: extendDeep({}, gaugeArcAttr, {
             color: {dflt: 'green'},
+            size: {
+                valType: 'number',
+                role: 'style',
+                min: 0,
+                max: 1,
+                editType: 'style',
+                description: [
+                    'Sets the size of the value bar as a fraction of total size.'
+                ].join(' ')
+            },
             description: [
                 'Set the appearance of the gauge\'s value'
             ].join(' ')
@@ -160,15 +170,14 @@ module.exports = {
                     'Sets the color of the threshold line.'
                 ].join(' ')
             },
-            height: {
+            size: {
                 valType: 'number',
                 role: 'style',
                 min: 0,
                 max: 1,
-                dflt: 0.75,
                 editType: 'style',
                 description: [
-                    'Sets the height of the threshold line has a fraction.'
+                    'Sets the height of the threshold line as a fraction.'
                 ].join(' ')
             },
             width: {

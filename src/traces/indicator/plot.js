@@ -13,9 +13,9 @@ var d3 = require('d3');
 var Lib = require('../../lib');
 var Drawing = require('../../components/drawing');
 var cn = require('./constants');
+var svgTextUtils = require('../../lib/svg_text_utils');
 // var Plots = require('../../plots/plots');
 // var Axes = require('../../plots/cartesian/axes');
-// var svgTextUtils = require('../../lib/svg_text_utils');
 //
 // // arc cotangent
 // function arcctg(x) { return Math.PI / 2 - Math.atan(x); }
@@ -52,11 +52,14 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var size = Lib.extendFlat({}, fullLayout._size, {
             w: fullLayout._size.w * (domain.x[1] - domain.x[0]),
             h: fullLayout._size.h * (domain.y[1] - domain.y[0]),
-            l: Math.max(fullLayout._size.l, fullLayout.width * domain.x[0]),
-            r: Math.max(fullLayout._size.r, fullLayout.width * (1 - domain.x[1])),
-            t: Math.max(fullLayout._size.t, fullLayout.height * domain.y[0]),
-            b: Math.max(fullLayout._size.b, fullLayout.height * (1 - domain.y[0]))
+            l: fullLayout._size.l + fullLayout._size.w * domain.x[0],
+            r: fullLayout._size.r + fullLayout._size.w * (1 - domain.x[1]),
+            t: fullLayout._size.t + fullLayout._size.h * domain.y[0],
+            b: fullLayout._size.b + fullLayout._size.h * (1 - domain.y[1])
         });
+
+        // title
+        var hasTitle = true;
 
         // bignumber
         var hasBigNumber = trace.mode.indexOf('bignumber') !== -1;
@@ -98,6 +101,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         // Position elements
         var bignumberVerticalMargin, mainFontSize, bignumberX;
         var deltaVerticalMargin, deltaFontSize, deltaBaseline;
+        var bulletHeight = Math.min(cn.bulletHeight, size.h / 2);
         var gaugeFontSize;
         var labelFontSize;
         var centerX = size.l + size.w / 2;
@@ -133,12 +137,12 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             if(isBullet) {
                 // Center the text
                 var p = 0.75;
-                mainFontSize = Math.min(0.25 * size.w / (trace.max.toString().length), size.h / 2);
+                mainFontSize = Math.min(0.2 * size.w / (trace.max.toString().length), bulletHeight);
                 bignumberVerticalMargin = size.t + size.h / 2;
                 bignumberX = size.l + (p + (1 - p) / 2) * size.w;
                 deltaFontSize = 0.5 * mainFontSize;
                 deltaVerticalMargin = bignumberVerticalMargin + 1.5 * deltaFontSize;
-                labelFontSize = 0.75 * mainFontSize;
+                labelFontSize = 0.4 * mainFontSize;
             }
 
             if(!hasBigNumber) {
@@ -148,6 +152,21 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
 
         plotGroup.each(function() {
+            // Trace name
+            var name = d3.select(this).selectAll('text.name').data(cd);
+            name.enter().append('text').classed('name', true);
+            name.attr({
+                x: isBullet ? size.l + 0.23 * size.w : centerX,
+                y: isBullet ? bignumberVerticalMargin : size.t + labelFontSize / 2,
+                'text-anchor': isBullet ? 'end' : 'middle',
+                'alignment-baseline': 'central'
+            })
+            .text(trace.name)
+            .call(Drawing.font, trace.font)
+            .style('font-size', labelFontSize)
+            .call(svgTextUtils.convertToTspans, gd);
+            name.exit().remove();
+
             // bignumber
             var data = cd.filter(function() {return hasBigNumber;});
             var number = d3.select(this).selectAll('text.number').data(data);
@@ -196,20 +215,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             .text(deltaText);
             delta.exit().remove();
 
-            // Trace name
-            var name = d3.select(this).selectAll('text.name').data(cd);
-            name.enter().append('text').classed('name', true);
-            name.attr({
-                x: centerX,
-                y: size.t + labelFontSize / 2,
-                'text-anchor': 'middle',
-                'alignment-baseline': 'central'
-            })
-            .call(Drawing.font, trace.font)
-            .style('font-size', labelFontSize)
-            .text(trace.name);
-            name.exit().remove();
-
             // Draw circular gauge
             data = cd.filter(function() {return isAngular;});
             var gauge = d3.select(this).selectAll('g.gauge').data(data);
@@ -246,8 +251,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .startAngle(-theta);
 
             var valueArcPath = d3.svg.arc()
-                  .innerRadius((innerRadius + radius) / 2 - cn.valueHeight / 2 * (radius - innerRadius))
-                  .outerRadius((innerRadius + radius) / 2 + cn.valueHeight / 2 * (radius - innerRadius))
+                  .innerRadius((innerRadius + radius) / 2 - trace.gauge.value.size / 2 * (radius - innerRadius))
+                  .outerRadius((innerRadius + radius) / 2 + trace.gauge.value.size / 2 * (radius - innerRadius))
                   .startAngle(-theta);
 
             // TODO: DRY up the following code to draw the different arcs
@@ -395,14 +400,16 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             //     Axes.drawOne(gd, ya);
             // }
             data = cd.filter(function() {return isBullet;});
-            var bulletHeight = cn.bulletHeight;
-            var innerBulletHeight = cn.valueHeight * bulletHeight;
+            var innerBulletHeight = trace.gauge.value.size * bulletHeight;
             var bulletVerticalMargin = bignumberVerticalMargin - bulletHeight / 2;
             var bullet = d3.select(this).selectAll('g.bullet').data(data);
             bullet.enter().append('g').classed('bullet', true);
-            bullet.attr('transform', 'translate(' + size.l + ',' + bulletVerticalMargin + ')');
+            bullet.attr('transform', 'translate(' + (size.l + (hasTitle ? 0.25 : 0) * size.w) + ',' + bulletVerticalMargin + ')');
 
-            var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, ((hasBigNumber || hasDelta) ? 0.75 : 1.0) * size.w]);
+            var bulletWidth = 1;
+            if(hasBigNumber || hasDelta) bulletWidth -= 0.25;
+            if(hasTitle) bulletWidth -= 0.25;
+            var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, bulletWidth * size.w]);
 
             // TODO: prevent rect width from being negative
             var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
@@ -453,8 +460,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             threshold.select('line')
                 .attr('x1', scale(trace.gauge.threshold.value))
                 .attr('x2', scale(trace.gauge.threshold.value))
-                .attr('y1', (1 - trace.gauge.threshold.height) / 2 * bulletHeight)
-                .attr('y2', (1 - (1 - trace.gauge.threshold.height) / 2) * bulletHeight)
+                .attr('y1', (1 - trace.gauge.threshold.size) / 2 * bulletHeight)
+                .attr('y2', (1 - (1 - trace.gauge.threshold.size) / 2) * bulletHeight)
                 .style('stroke', trace.gauge.threshold.color)
                 .style('stroke-width', trace.gauge.threshold.width);
             threshold.exit().remove();
@@ -469,19 +476,18 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             group.append('path');
             ticks.select('path')
                 .attr('d', 'M0,0V' + 0.1 * bulletHeight)
-                .style('stroke', 'white');
+                .style('stroke', trace.font.color);
 
             group.insert('text');
             ticks.select('text')
                 .text(function(d) { return fmt(d);})
                 .call(Drawing.font, trace.font)
+                .style('font-size', labelFontSize)
                 .attr({
-                    y: 20,
+                    y: 0.2 * bulletHeight,
                     'text-anchor': 'middle',
-                    'alignment-baseline': 'central'
-                })
-                .style('fill', 'white');
-
+                    'alignment-baseline': 'hanging'
+                });
             ticks
               .attr('transform', function(d) {
                   var pos = scale(d);

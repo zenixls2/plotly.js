@@ -12,6 +12,7 @@ var Lib = require('../../lib');
 var attributes = require('./attributes');
 var handleDomainDefaults = require('../../plots/domain').defaults;
 var Template = require('../../plot_api/plot_template');
+var cn = require('./constants.js');
 // var handleDomainDefaults = require('../../plots/domain').defaults;
 // var handleText = require('../bar/defaults').handleText;
 
@@ -49,12 +50,14 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerceGauge('value.color');
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
+    var defaultValueSize = cn.valueHeight * (traceOut.gauge.shape === 'bullet' ? 0.25 : 0.5);
+    coerceGauge('value.size', defaultValueSize);
     coerceGauge('target.color');
     coerceGauge('target.line.color');
     coerceGauge('target.line.width');
 
     coerceGauge('threshold.value');
-    coerceGauge('threshold.height');
+    coerceGauge('threshold.size');
     coerceGauge('threshold.width');
     coerceGauge('threshold.color');
 

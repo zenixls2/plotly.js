@@ -1,77 +1,98 @@
 {
   "data": [{
-    "domain": {"y": [0, 0.4]},
-    "name": "Speed",
+    "domain": {"y": [0, 0.33]},
+    "name": "<b>Revenue</b><br><span style='color: gray; font-size:0.8em'>U.S. $ (1,000s)</span>",
     "type": "indicator",
     "mode": "bignumber+gauge",
-    "ticker": {
-      "showticker": false
-    },
-    "max": 500,
-    "target": 300,
+    "max": 300,
+    "target": 150,
     "gauge": {
       "shape": "bullet",
       "threshold": {
-        "color": "rgba(255, 255, 255, 0.5)",
+        "color": "black",
         "width": 2,
         "height": 0.75,
-        "value": 450
+        "value": 220
       },
       "background": {
-        "color": "rgba(255, 255, 255, 0.25)",
+        "color": "rgba(0, 0, 0, 0.1)",
         "line": {
           "width": 2,
-          "color": "rgba(255, 255, 255, 0.5)"
+          "color": "rgba(0, 0, 0, 0.1)"
         }
       },
       "target": {
-        "color": "rgba(255, 255, 0, 0.5)"
+        "color": "rgba(0, 0, 0, 0.25)"
+      },
+      "value": {
+        "color": "rgba(0, 0, 0, 1)"
       }
     },
-    "values": [125, 175],
-    "font": {
-      "color": "white",
-      "family": "Dosis"
-    }
-  },
-  {
-    "domain": {"y": [0.6, 1]},
-    "name": "Temperature",
+    "values": [125, 175]
+  }, {
+    "domain": {"y": [0.33, 0.66]},
+    "name": "<b>Profit</b><br><span style='color: gray; font-size:0.8em'>%</span>",
     "type": "indicator",
     "mode": "bignumber+gauge",
-    "ticker": {
-      "showticker": false
-    },
     "max": 100,
-    "target": 60,
+    "target": 75,
     "gauge": {
       "shape": "bullet",
       "background": {
-        "color": "rgba(255, 255, 255, 0.25)",
+        "color": "rgba(0, 0, 0, 0.1)",
         "line": {
           "width": 2,
-          "color": "rgba(255, 255, 255, 0.5)"
+          "color": "rgba(0, 0, 0, 0.1)"
         }
       },
       "target": {
-        "color": "rgba(255, 255, 0, 0.5)"
+        "color": "rgba(0, 0, 0, 0.25)"
+      },
+      "value": {
+        "color": "rgba(0, 0, 0, 1)"
       }
     },
-    "values": [63, 55],
-    "font": {
-      "color": "white",
-      "family": "Dosis"
-    }
+    "values": [25, 35],
+    "valueformat": "0"
+  }, {
+    "domain": {"y": [0.66, 1]},
+    "name": "<b>Avg Order Size</b><br><span style='color: gray; font-size:0.8em'>U.S. $</span>",
+    "type": "indicator",
+    "mode": "bignumber+gauge",
+    "max": 300,
+    "target": 150,
+    "gauge": {
+      "shape": "bullet",
+      "threshold": {
+        "color": "black",
+        "width": 2,
+        "height": 0.75,
+        "value": 210
+      },
+      "background": {
+        "color": "rgba(0, 0, 0, 0.1)",
+        "line": {
+          "width": 2,
+          "color": "rgba(0, 0, 0, 0.1)"
+        }
+      },
+      "target": {
+        "color": "rgba(0, 0, 0, 0.25)"
+      },
+      "value": {
+        "color": "rgba(0, 0, 0, 1)"
+      }
+    },
+    "values": [200, 220]
   }],
   "layout": {
-    "width": 375,
-    "height": 300,
-    "paper_bgcolor": "black",
+    "width": 600,
+    "height": 250,
     "margin": {
-      "t": 25,
-      "r": 0,
-      "l": 25,
-      "b": 15
+      "t": 10,
+      "r": 10,
+      "l": 10,
+      "b": 10
     }
   },
   "config": {
