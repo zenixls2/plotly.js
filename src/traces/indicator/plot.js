@@ -96,7 +96,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         // bullet gauge
         var isBullet = hasGauge && trace.gauge.shape === 'bullet';
 
-        var isWide = !(size.h > radius);
+        var isWide = (size.h * 0.75 < size.w / 2);
 
         // TODO: Move the following to defaults
         // Position elements
@@ -135,7 +135,11 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 labelFontSize = 0.35 * mainFontSize;
                 deltaVerticalMargin = bignumberVerticalMargin + deltaFontSize;
                 if(!hasBigNumber) deltaBaseline = 'bottom';
-                labelY = size.t + Math.max(labelFontSize / 2, size.h / 2 - radius);
+                if(isWide) {
+                    labelY = size.t + (0.25 / 2) * size.h - labelFontSize / 2;
+                } else {
+                    labelY = ((bignumberVerticalMargin - radius) + size.t) / 2;
+                }
             }
             if(isBullet) {
                 // Center the text

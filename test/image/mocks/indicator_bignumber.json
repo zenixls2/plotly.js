@@ -59,10 +59,10 @@
     "height": 500,
     "paper_bgcolor": "black",
     "margin": {
-      "t": 50,
+      "t": 25,
       "r": 25,
       "l": 25,
-      "b": 50
+      "b": 25
     },
     "shapes": [{
       "type": "rect",
