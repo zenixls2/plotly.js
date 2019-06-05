@@ -16,7 +16,7 @@ var cn = require('./constants.js');
 // var handleDomainDefaults = require('../../plots/domain').defaults;
 // var handleText = require('../bar/defaults').handleText;
 
-module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
+function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     function coerce(attr, dflt) {
         return Lib.coerce(traceIn, traceOut, attributes, attr, dflt);
     }
@@ -66,4 +66,14 @@ module.exports = function supplyDefaults(traceIn, traceOut, defaultColor, layout
     coerce('delta.valueformat', traceOut.delta.showpercentage ? '2%' : traceOut.valueformat);
     coerce('delta.increasing.color');
     coerce('delta.decreasing.color');
+}
+
+function crossTraceDefaults(/* fullData, fullLayout */) {
+    // TODO: for bullet, set equal size for label and number if sharing xdomain
+    // size must be large enough to accomodate the largest label/number
+}
+
+module.exports = {
+    supplyDefaults: supplyDefaults,
+    crossTraceDefaults: crossTraceDefaults
 };
