@@ -111,10 +111,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             // when no gauge, we are only constrained by figure size
             if(hasBigNumber) {
                 // Center the text vertically
-                mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 2);
+                mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 3);
                 deltaFontSize = 0.5 * mainFontSize;
                 bignumberVerticalMargin = size.t + size.h / 2;
-                deltaVerticalMargin = size.t + size.h - deltaFontSize / 2;
+                deltaVerticalMargin = Math.min(size.t + size.h / 2 + mainFontSize / 2 + deltaFontSize / 2);
             } else {
                 mainFontSize = Math.min(size.w / (trace.max.toString().length + 2), size.h / 2);
                 deltaFontSize = mainFontSize;
@@ -141,7 +141,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 bignumberVerticalMargin = size.t + size.h / 2;
                 bignumberX = size.l + (p + (1 - p) / 2) * size.w;
                 deltaFontSize = 0.5 * mainFontSize;
-                deltaVerticalMargin = bignumberVerticalMargin + 1.5 * deltaFontSize;
+                deltaVerticalMargin = bignumberVerticalMargin + mainFontSize / 2 + deltaFontSize;
                 labelFontSize = 0.4 * mainFontSize;
             }
 

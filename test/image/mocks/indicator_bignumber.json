@@ -1,29 +1,103 @@
 {
   "data": [{
-    "name": "Accounts",
-    "type": "indicator",
-    "mode": "bignumber+delta",
-    "delta": {
-      "showpercentage": true
+      "domain": {
+        "x": [0, 0.33],
+        "y": [0, 0.33]
+      },
+      "name": "Accounts",
+      "type": "indicator",
+      "mode": "bignumber+delta",
+      "delta": {
+        "showpercentage": true
+      },
+      "max": 500,
+      "values": [400, 450],
+      "font": {
+        "color": "white",
+        "family": "Dosis"
+      }
     },
-    "max": 500,
-    "values": [400, 450],
-    "font": {
-      "color": "white",
-      "family": "Dosis"
+    {
+      "domain": {
+        "x": [0.33, 0.66],
+        "y": [0, 0.66]
+      },
+      "name": "Accounts",
+      "type": "indicator",
+      "mode": "bignumber+delta",
+      "delta": {
+        "showpercentage": true
+      },
+      "max": 500,
+      "values": [400, 450],
+      "font": {
+        "color": "white",
+        "family": "Dosis"
+      }
+    },
+    {
+      "domain": {
+        "x": [0.66, 1],
+        "y": [0, 1]
+      },
+      "name": "Accounts",
+      "type": "indicator",
+      "mode": "bignumber+delta",
+      "delta": {
+        "showpercentage": true
+      },
+      "max": 500,
+      "values": [400, 450],
+      "font": {
+        "color": "white",
+        "family": "Dosis"
+      }
     }
-  }],
+  ],
   "layout": {
-    "width": 250,
-    "height": 250,
+    "width": 750,
+    "height": 500,
     "paper_bgcolor": "black",
     "margin": {
       "t": 50,
       "r": 25,
       "l": 25,
       "b": 50
-    }
-
+    },
+    "shapes": [{
+      "type": "rect",
+      "x0": 0,
+      "x1": 0.33,
+      "y0": 0.66,
+      "y1": 1,
+      "line": {
+        "color": "rgba(255, 255, 255, 0.35)",
+        "width": 1
+      },
+      "fill": "rgba(0,0,0,0)"
+    }, {
+      "type": "rect",
+      "x0": 0.33,
+      "x1": 0.66,
+      "y0": 0.33,
+      "y1": 1,
+      "line": {
+        "color": "rgba(255, 255, 255, 0.35)",
+        "width": 1
+      },
+      "fill": "rgba(0,0,0,0)"
+    },{
+      "type": "rect",
+      "x0": 0.66,
+      "x1": 1.0,
+      "y0": 0,
+      "y1": 1,
+      "line": {
+        "color": "rgba(255, 255, 255, 0.35)",
+        "width": 1
+      },
+      "fill": "rgba(0,0,0,0)"
+    }]
   },
   "config": {
     "responsive": true
