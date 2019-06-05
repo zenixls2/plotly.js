@@ -117,7 +117,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 bignumberVerticalMargin = size.t + size.h / 2;
                 deltaVerticalMargin = Math.min(size.t + size.h / 2 + mainFontSize / 2 + deltaFontSize / 2);
             } else {
-                mainFontSize = Math.min(size.w / (trace.max.toString().length + 2), size.h / 3);
+                mainFontSize = Math.min(size.w / (trace.max.toString().length + 1), size.h / 3);
                 deltaFontSize = mainFontSize;
                 bignumberVerticalMargin = 0;
                 deltaVerticalMargin = size.t + size.h / 2;
@@ -268,9 +268,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var bgArc = gauge.selectAll('g.bgArc').data(cd);
             bgArc.enter().append('g').classed('bgArc', true).append('path');
             bgArc.select('path').attr('d', arcPath.endAngle(theta))
-                  .style('fill', trace.gauge.background.color)
-                  .style('stroke', trace.gauge.background.line.color)
-                  .style('stroke-width', trace.gauge.background.line.width);
+                  .style('fill', trace.gauge.bgcolor)
+                  .style('stroke', trace.gauge.bordercolor)
+                  .style('stroke-width', trace.gauge.borderwidth);
             bgArc.exit().remove();
 
             // Draw target
@@ -425,9 +425,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             bgBullet.select('rect')
                   .attr('width', scale(trace.max))
                   .attr('height', bulletHeight)
-                  .style('fill', trace.gauge.background.color)
-                  .style('stroke', trace.gauge.background.line.color)
-                  .style('stroke-width', trace.gauge.background.line.width);
+                  .style('fill', trace.gauge.bgcolor)
+                  .style('stroke', trace.gauge.bordercolor)
+                  .style('stroke-width', trace.gauge.borderwidth);
             bgBullet.exit().remove();
 
             var targetBullet = bullet.selectAll('g.targetBullet').data(cd);

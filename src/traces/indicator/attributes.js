@@ -134,11 +134,27 @@ module.exports = {
                 'Set the shape of the gauge'
             ].join(' ')
         },
-        background: extendFlat({}, gaugeArcAttr, {
-            description: [
-                'Set the appearance of the gauge\'s background'
-            ].join(' ')
-        }),
+        bgcolor: {
+            valType: 'color',
+            role: 'style',
+            editType: 'legend',
+            description: 'Sets the gauge background color.'
+        },
+        bordercolor: {
+            valType: 'color',
+            dflt: colorAttrs.defaultLine,
+            role: 'style',
+            editType: 'legend',
+            description: 'Sets the color of the border enclosing the gauge.'
+        },
+        borderwidth: {
+            valType: 'number',
+            min: 0,
+            dflt: 0,
+            role: 'style',
+            editType: 'legend',
+            description: 'Sets the width (in px) of the border enclosing the gauge.'
+        },
         value: extendDeep({}, gaugeArcAttr, {
             color: {dflt: 'green'},
             size: {

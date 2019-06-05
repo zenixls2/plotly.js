@@ -44,9 +44,9 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         return Lib.coerce(gaugeIn, gaugeOut, attributes.gauge, attr, dflt);
     }
     coerceGauge('shape');
-    coerceGauge('background.color');
-    coerceGauge('background.line.color');
-    coerceGauge('background.line.width');
+    coerceGauge('bgcolor');
+    coerceGauge('borderwidth');
+    coerceGauge('bordercolor');
     coerceGauge('value.color');
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
