@@ -112,12 +112,12 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             // when no gauge, we are only constrained by figure size
             if(hasBigNumber) {
                 // Center the text vertically
-                mainFontSize = Math.min(size.w / (trace.max.toString().length), size.h / 3);
+                mainFontSize = Math.min(size.w / (fmt(trace.max).length), size.h / 3);
                 deltaFontSize = 0.5 * mainFontSize;
                 bignumberVerticalMargin = size.t + size.h / 2;
                 deltaVerticalMargin = Math.min(size.t + size.h / 2 + mainFontSize / 2 + deltaFontSize / 2);
             } else {
-                mainFontSize = Math.min(size.w / (trace.max.toString().length + 1), size.h / 3);
+                mainFontSize = Math.min(size.w / (fmt(trace.max).length + 1), size.h / 3);
                 deltaFontSize = mainFontSize;
                 bignumberVerticalMargin = 0;
                 deltaVerticalMargin = size.t + size.h / 2;
@@ -128,8 +128,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             if(isAngular) {
                 bignumberVerticalMargin = size.t + size.h;
                 if(!isWide) bignumberVerticalMargin -= (size.h - radius) / 2;
-                // TODO: check formatted size of the number
-                mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
+                mainFontSize = Math.min(2 * innerRadius / (fmt(trace.max).length));
                 deltaFontSize = 0.35 * mainFontSize;
                 gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
                 labelFontSize = 0.35 * mainFontSize;
@@ -144,7 +143,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             if(isBullet) {
                 // Center the text
                 var p = 0.75;
-                mainFontSize = Math.min(0.2 * size.w / (trace.max.toString().length), bulletHeight);
+                mainFontSize = Math.min(0.2 * size.w / (fmt(trace.max).length), bulletHeight);
                 bignumberVerticalMargin = size.t + size.h / 2;
                 bignumberX = size.l + (p + (1 - p) / 2) * size.w;
                 deltaFontSize = 0.5 * mainFontSize;
@@ -160,9 +159,9 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         }
 
         plotGroup.each(function() {
-            // Trace name
-            var name = d3.select(this).selectAll('text.name').data(cd);
-            name.enter().append('text').classed('name', true);
+            // Title
+            var name = d3.select(this).selectAll('text.title').data(cd);
+            name.enter().append('text').classed('title', true);
             name.attr({
                 x: isBullet ? size.l + 0.23 * size.w : centerX,
                 y: labelY,
@@ -254,31 +253,30 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   })
                   .text(fmt(trace.max));
 
-            var arcPath = d3.svg.arc()
-                  .innerRadius(innerRadius).outerRadius(radius)
-                  .startAngle(-theta);
+            function arcPathGenerator(size) {
+                return d3.svg.arc()
+                      .innerRadius((innerRadius + radius) / 2 - size / 2 * (radius - innerRadius))
+                      .outerRadius((innerRadius + radius) / 2 + size / 2 * (radius - innerRadius))
+                      .startAngle(-theta);
+            }
 
-            var valueArcPath = d3.svg.arc()
-                  .innerRadius((innerRadius + radius) / 2 - trace.gauge.value.size / 2 * (radius - innerRadius))
-                  .outerRadius((innerRadius + radius) / 2 + trace.gauge.value.size / 2 * (radius - innerRadius))
-                  .startAngle(-theta);
+            // Reexpress our background attributes for drawing
+            var bg = {
+                range: [trace.min, trace.max],
+                color: trace.gauge.bgcolor,
+                line: {
+                    color: trace.gauge.bordercolor,
+                    width: trace.gauge.borderwidth
+                },
+                size: 1
+            };
 
-            // TODO: DRY up the following code to draw the different arcs
-            // Draw background
-            var bgArc = gauge.selectAll('g.bgArc').data(cd);
-            bgArc.enter().append('g').classed('bgArc', true).append('path');
-            bgArc.select('path').attr('d', arcPath.endAngle(theta))
-                  .style('fill', trace.gauge.bgcolor)
-                  .style('stroke', trace.gauge.bordercolor)
-                  .style('stroke-width', trace.gauge.borderwidth);
-            bgArc.exit().remove();
-
-            // Draw steps
-            var targetArc = gauge.selectAll('g.targetArc').data(trace.gauge.steps);
+            // Draw backgrond + steps
+            var targetArc = gauge.selectAll('g.targetArc').data([bg].concat(trace.gauge.steps));
             targetArc.enter().append('g').classed('targetArc', true).append('path');
             targetArc.select('path')
                   .attr('d', function(d) {
-                      return arcPath
+                      return arcPathGenerator(d.size)
                         .startAngle(valueToAngle(d.range[0]))
                         .endAngle(valueToAngle(d.range[1]))();
                   })
@@ -288,6 +286,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             targetArc.exit().remove();
 
             // Draw foreground with transition
+            var valueArcPath = arcPathGenerator(trace.gauge.value.size);
             var fgArc = gauge.selectAll('g.fgArc').data(cd);
             fgArc.enter().append('g').classed('fgArc', true).append('path');
 
@@ -424,17 +423,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
             // TODO: prevent rect width from being negative
             // TODO: prevent rect position to overflow background
-            var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
-            bgBullet.enter().append('g').classed('bgBullet', true).append('rect');
-            bgBullet.select('rect')
-                  .attr('width', scale(trace.max))
-                  .attr('height', bulletHeight)
-                  .style('fill', trace.gauge.bgcolor)
-                  .style('stroke', trace.gauge.bordercolor)
-                  .style('stroke-width', trace.gauge.borderwidth);
-            bgBullet.exit().remove();
-
-            var targetBullet = bullet.selectAll('g.targetBullet').data(trace.gauge.steps);
+            var targetBullet = bullet.selectAll('g.targetBullet').data([bg].concat(trace.gauge.steps));
             targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
             targetBullet.select('rect')
                   .attr('width', function(d) { return scale(d.range[1] - d.range[0]);})
@@ -445,6 +434,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .style('stroke-width', function(d) { return d.line.width;});
             targetBullet.exit().remove();
 
+            // Draw value bar with transitions
             var fgBullet = bullet.selectAll('g.fgBullet').data(cd);
             fgBullet.enter().append('g').classed('fgBullet', true).append('rect');
             fgBullet.select('rect')
