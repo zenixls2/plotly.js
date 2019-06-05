@@ -144,12 +144,14 @@ module.exports = {
 
     // position
     domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
-    font: extendFlat({}, textFontAttrs, {
-        description: [
-            'Set the font used to display main number'
-        ].join(' ')
-    }),
 
+    number: {
+        font: extendFlat({}, textFontAttrs, {
+            description: [
+                'Set the font used to display main number'
+            ].join(' ')
+        })
+    },
     gauge: {
         shape: {
             valType: 'enumerated',
@@ -161,6 +163,13 @@ module.exports = {
                 'Set the shape of the gauge'
             ].join(' ')
         },
+        value: extendDeep({}, gaugeBarAttrs, {
+            color: {dflt: 'green'},
+            description: [
+                'Set the appearance of the gauge\'s value'
+            ].join(' ')
+        }),
+        // Background of the gauge
         bgcolor: {
             valType: 'color',
             role: 'style',
@@ -182,12 +191,7 @@ module.exports = {
             editType: 'legend',
             description: 'Sets the width (in px) of the border enclosing the gauge.'
         },
-        value: extendDeep({}, gaugeBarAttrs, {
-            color: {dflt: 'green'},
-            description: [
-                'Set the appearance of the gauge\'s value'
-            ].join(' ')
-        }),
+        // Steps (or ranges) and thresholds
         steps: stepsAttrs,
         threshold: {
             color: {
@@ -278,6 +282,11 @@ module.exports = {
             },
             editType: 'style'
         },
+        font: extendFlat({}, textFontAttrs, {
+            description: [
+                'Set the font used to display the delta'
+            ].join(' ')
+        }),
         editType: 'calc'
     }
 };

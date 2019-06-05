@@ -31,8 +31,11 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     handleDomainDefaults(traceOut, layout, coerce);
 
     // Font attribtes
-    coerce('font.color', layout.font.color);
-    coerce('font.family', layout.font.family);
+    coerce('number.font.color', layout.font.color);
+    coerce('number.font.family', layout.font.family);
+
+    coerce('delta.font.color', traceOut.number.font.color);
+    coerce('delta.font.family', traceOut.number.font.family);
     // Lib.coerceFont(coerce, 'font', layout.font);
 
 

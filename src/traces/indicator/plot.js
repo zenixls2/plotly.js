@@ -170,7 +170,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 'alignment-baseline': 'central'
             })
             .text(trace.name)
-            .call(Drawing.font, trace.font)
+            .call(Drawing.font, trace.number.font)
             .style('font-size', labelFontSize)
             .call(svgTextUtils.convertToTspans, gd);
             name.exit().remove();
@@ -185,7 +185,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 'text-anchor': 'middle',
                 'alignment-baseline': isAngular ? 'bottom' : 'central'
             })
-            .call(Drawing.font, trace.font)
+            .call(Drawing.font, trace.number.font)
             .style('font-size', mainFontSize);
 
             if(hasTransition) {
@@ -217,7 +217,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 'text-anchor': 'middle',
                 'alignment-baseline': deltaBaseline || 'central'
             })
-            .call(Drawing.font, trace.font)
+            .call(Drawing.font, trace.delta.font)
             .style('font-size', deltaFontSize)
             .style('fill', deltaFill)
             .text(deltaText);
@@ -233,7 +233,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var minText = gauge.selectAll('text.min').data(cd);
             minText.enter().append('text').classed('min', true);
             minText
-                  .call(Drawing.font, trace.font)
+                  .call(Drawing.font, trace.number.font)
                   .style('font-size', gaugeFontSize)
                   .attr({
                       x: - (innerRadius + radius) / 2,
@@ -245,7 +245,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var maxText = gauge.selectAll('text.max').data(cd);
             maxText.enter().append('text').classed('max', true);
             maxText
-                  .call(Drawing.font, trace.font)
+                  .call(Drawing.font, trace.number.font)
                   .style('font-size', gaugeFontSize)
                   .attr({
                       x: (innerRadius + radius) / 2,
@@ -491,12 +491,12 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             group.append('path');
             ticks.select('path')
                 .attr('d', 'M0,0V' + 0.1 * bulletHeight)
-                .style('stroke', trace.font.color);
+                .style('stroke', trace.number.font.color);
 
             group.insert('text');
             ticks.select('text')
                 .text(function(d) { return fmt(d);})
-                .call(Drawing.font, trace.font)
+                .call(Drawing.font, trace.number.font)
                 .style('font-size', labelFontSize)
                 .attr({
                     y: 0.2 * bulletHeight,
