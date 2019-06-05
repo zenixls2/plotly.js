@@ -44,18 +44,25 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
         return Lib.coerce(gaugeIn, gaugeOut, attributes.gauge, attr, dflt);
     }
     coerceGauge('shape');
+
+    // gauge background
     coerceGauge('bgcolor');
     coerceGauge('borderwidth');
     coerceGauge('bordercolor');
+
+    // gauge value indicator
     coerceGauge('value.color');
     coerceGauge('value.line.color');
     coerceGauge('value.line.width');
     var defaultValueSize = cn.valueHeight * (traceOut.gauge.shape === 'bullet' ? 0.5 : 1);
     coerceGauge('value.size', defaultValueSize);
+
+    // Gauge steps
     coerceGauge('target.color');
     coerceGauge('target.line.color');
     coerceGauge('target.line.width');
 
+    // Gauge thresholds
     coerceGauge('threshold.value');
     coerceGauge('threshold.size');
     coerceGauge('threshold.width');
@@ -68,12 +75,6 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     coerce('delta.decreasing.color');
 }
 
-function crossTraceDefaults(/* fullData, fullLayout */) {
-    // TODO: for bullet, set equal size for label and number if sharing xdomain
-    // size must be large enough to accomodate the largest label/number
-}
-
 module.exports = {
-    supplyDefaults: supplyDefaults,
-    crossTraceDefaults: crossTraceDefaults
+    supplyDefaults: supplyDefaults
 };

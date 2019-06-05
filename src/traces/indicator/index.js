@@ -18,7 +18,6 @@ module.exports = {
     attributes: require('./attributes'),
     layoutAttributes: require('./layout_attributes'),
     supplyDefaults: require('./defaults').supplyDefaults,
-    crossTraceDefaults: require('./defaults').crossTraceDefaults,
     supplyLayoutDefaults: require('./layout_defaults'),
 
     calc: require('./calc').calc,
