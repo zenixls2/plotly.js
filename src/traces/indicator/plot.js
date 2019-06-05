@@ -480,9 +480,11 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             threshold.exit().remove();
 
             // Draw x axis and ticks
+            // TODO: reuse axis logic
             var xaxis = bullet.selectAll('g.xaxislayer-above').data(cd);
             xaxis.enter().append('g').classed('xaxislayer-above', true);
-            var ticksPos = [trace.min, trace.target, trace.max];
+            var ticksPos = [trace.min, trace.max];
+            ticksPos = ticksPos.concat(trace.gauge.steps.map(function(d) { return d.range[1];}));
             var ticks = xaxis.selectAll('g.tick').data(ticksPos);
             var group = ticks.enter().append('g').classed('tick', true);
 
