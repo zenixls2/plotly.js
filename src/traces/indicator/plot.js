@@ -60,7 +60,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         });
 
         // title
-        var hasTitle = true;
+        var hasTitle = trace.title.text;
 
         // bignumber
         var hasBigNumber = trace.mode.indexOf('bignumber') !== -1;
@@ -85,6 +85,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var isAngular = hasGauge && trace.gauge.shape === 'angular';
         var theta = Math.PI / 2;
         var radius = Math.min(size.w / 2, size.h * 0.75);
+        var isWide = (size.h * 0.75 < size.w / 2);
         var innerRadius = cn.innerRadius * radius;
         function valueToAngle(v) {
             var angle = (v - trace.min) / (trace.max - trace.min) * Math.PI - Math.PI / 2;
@@ -96,83 +97,90 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         // bullet gauge
         var isBullet = hasGauge && trace.gauge.shape === 'bullet';
 
-        var isWide = (size.h * 0.75 < size.w / 2);
-
         // TODO: Move the following to defaults
         // Position elements
-        var bignumberVerticalMargin, mainFontSize, bignumberX;
-        var deltaVerticalMargin, deltaFontSize, deltaBaseline;
+        var bignumberX, bignumberY, bignumberFontSize, bignumberBaseline;
+        var deltaX, deltaY, deltaFontSize, deltaBaseline;
+        var titleX, titleY, titleFontSize;
+
         var bulletHeight = Math.min(cn.bulletHeight, size.h / 2);
         var gaugeFontSize;
-        var labelFontSize, labelY;
+
+        // Center everything
         var centerX = size.l + size.w / 2;
         bignumberX = centerX;
+        deltaX = bignumberX;
+        titleX = centerX;
+
+        bignumberBaseline = hasGauge && isAngular ? 'bottom' : 'central';
+        titleX = isBullet ? size.l + 0.23 * size.w : centerX;
 
         if(!hasGauge) {
             // when no gauge, we are only constrained by figure size
             if(hasBigNumber) {
                 // Center the text vertically
-                mainFontSize = Math.min(size.w / (fmt(trace.max).length), size.h / 3);
-                deltaFontSize = 0.5 * mainFontSize;
-                bignumberVerticalMargin = size.t + size.h / 2;
-                deltaVerticalMargin = Math.min(size.t + size.h / 2 + mainFontSize / 2 + deltaFontSize / 2);
+                bignumberFontSize = Math.min(size.w / (fmt(trace.max).length), size.h / 3);
+                deltaFontSize = 0.5 * bignumberFontSize;
+                bignumberY = size.t + size.h / 2;
+                deltaY = Math.min(size.t + size.h / 2 + bignumberFontSize / 2 + deltaFontSize / 2);
             } else {
-                mainFontSize = Math.min(size.w / (fmt(trace.max).length + 1), size.h / 3);
-                deltaFontSize = mainFontSize;
-                bignumberVerticalMargin = 0;
-                deltaVerticalMargin = size.t + size.h / 2;
+                bignumberFontSize = Math.min(size.w / (fmt(trace.max).length + 1), size.h / 3);
+                deltaFontSize = bignumberFontSize;
+                bignumberY = 0;
+                deltaY = size.t + size.h / 2;
             }
-            labelFontSize = 0.35 * mainFontSize;
-            labelY = size.t + Math.max(labelFontSize / 2, size.h / 5);
+            titleFontSize = 0.35 * bignumberFontSize;
+            titleY = size.t + Math.max(titleFontSize / 2, size.h / 5);
         } else {
             if(isAngular) {
-                bignumberVerticalMargin = size.t + size.h;
-                if(!isWide) bignumberVerticalMargin -= (size.h - radius) / 2;
-                mainFontSize = Math.min(2 * innerRadius / (fmt(trace.max).length));
-                deltaFontSize = 0.35 * mainFontSize;
-                gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
-                labelFontSize = 0.35 * mainFontSize;
-                deltaVerticalMargin = bignumberVerticalMargin + deltaFontSize;
+                bignumberY = size.t + size.h;
+                if(!isWide) bignumberY -= (size.h - radius) / 2;
+                bignumberFontSize = Math.min(2 * innerRadius / (fmt(trace.max).length));
+                deltaFontSize = 0.35 * bignumberFontSize;
+                gaugeFontSize = Math.max(0.25 * bignumberFontSize, (radius - innerRadius) / 4);
+                titleFontSize = 0.35 * bignumberFontSize;
+                deltaY = bignumberY + deltaFontSize;
                 if(!hasBigNumber) deltaBaseline = 'bottom';
                 if(isWide) {
-                    labelY = size.t + (0.25 / 2) * size.h - labelFontSize / 2;
+                    titleY = size.t + (0.25 / 2) * size.h - titleFontSize / 2;
                 } else {
-                    labelY = ((bignumberVerticalMargin - radius) + size.t) / 2;
+                    titleY = ((bignumberY - radius) + size.t) / 2;
                 }
             }
             if(isBullet) {
                 // Center the text
                 var p = 0.75;
-                mainFontSize = Math.min(0.2 * size.w / (fmt(trace.max).length), bulletHeight);
-                bignumberVerticalMargin = size.t + size.h / 2;
+                bignumberFontSize = Math.min(0.2 * size.w / (fmt(trace.max).length), bulletHeight);
+                bignumberY = size.t + size.h / 2;
                 bignumberX = size.l + (p + (1 - p) / 2) * size.w;
-                deltaFontSize = 0.5 * mainFontSize;
-                deltaVerticalMargin = bignumberVerticalMargin + mainFontSize / 2 + deltaFontSize;
-                labelFontSize = 0.4 * mainFontSize;
-                labelY = bignumberVerticalMargin;
+                deltaX = bignumberX;
+                deltaFontSize = 0.5 * bignumberFontSize;
+                deltaY = bignumberY + bignumberFontSize / 2 + deltaFontSize;
+                titleFontSize = 0.4 * bignumberFontSize;
+                titleY = bignumberY;
             }
 
             if(!hasBigNumber) {
-                deltaFontSize = 0.75 * mainFontSize;
-                deltaVerticalMargin = bignumberVerticalMargin;
+                deltaFontSize = 0.75 * bignumberFontSize;
+                deltaY = bignumberY;
             }
         }
 
         plotGroup.each(function() {
             // Title
-            var name = d3.select(this).selectAll('text.title').data(cd);
-            name.enter().append('text').classed('title', true);
-            name.attr({
-                x: isBullet ? size.l + 0.23 * size.w : centerX,
-                y: labelY,
+            var title = d3.select(this).selectAll('text.title').data(cd);
+            title.enter().append('text').classed('title', true);
+            title.attr({
+                x: titleX,
+                y: titleY,
                 'text-anchor': isBullet ? 'end' : 'middle',
                 'alignment-baseline': 'central'
             })
             .text(trace.title.text)
             .call(Drawing.font, trace.title.font)
-            .style('font-size', labelFontSize)
+            .style('font-size', titleFontSize)
             .call(svgTextUtils.convertToTspans, gd);
-            name.exit().remove();
+            title.exit().remove();
 
             // bignumber
             var data = cd.filter(function() {return hasBigNumber;});
@@ -180,12 +188,12 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             number.enter().append('text').classed('number', true);
             number.attr({
                 x: bignumberX,
-                y: bignumberVerticalMargin,
+                y: bignumberY,
                 'text-anchor': 'middle',
-                'alignment-baseline': isAngular ? 'bottom' : 'central'
+                'alignment-baseline': bignumberBaseline
             })
             .call(Drawing.font, trace.number.font)
-            .style('font-size', mainFontSize);
+            .style('font-size', bignumberFontSize);
 
             if(hasTransition) {
                 number
@@ -211,8 +219,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var delta = d3.select(this).selectAll('text.delta').data(data);
             delta.enter().append('text').classed('delta', true);
             delta.attr({
-                x: bignumberX,
-                y: deltaVerticalMargin,
+                x: deltaX,
+                y: deltaY,
                 'text-anchor': 'middle',
                 'alignment-baseline': deltaBaseline || 'central'
             })
@@ -226,7 +234,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             data = cd.filter(function() {return isAngular;});
             var gauge = d3.select(this).selectAll('g.gauge').data(data);
             gauge.enter().append('g').classed('gauge', true);
-            gauge.attr('transform', 'translate(' + centerX + ',' + bignumberVerticalMargin + ')');
+            gauge.attr('transform', 'translate(' + centerX + ',' + bignumberY + ')');
 
             // Draw gauge's min and max in text
             var minText = gauge.selectAll('text.min').data(cd);
@@ -411,7 +419,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             // }
             data = cd.filter(function() {return isBullet;});
             var innerBulletHeight = trace.gauge.value.size * bulletHeight;
-            var bulletVerticalMargin = bignumberVerticalMargin - bulletHeight / 2;
+            var bulletVerticalMargin = bignumberY - bulletHeight / 2;
             var bullet = d3.select(this).selectAll('g.bullet').data(data);
             bullet.enter().append('g').classed('bullet', true);
             bullet.attr('transform', 'translate(' + (size.l + (hasTitle ? 0.25 : 0) * size.w) + ',' + bulletVerticalMargin + ')');
@@ -487,7 +495,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             ticks.select('text')
                 .text(function(d) { return fmt(d);})
                 .call(Drawing.font, trace.number.font)
-                .style('font-size', labelFontSize)
+                .style('font-size', titleFontSize)
                 .attr({
                     y: 0.2 * bulletHeight,
                     'text-anchor': 'middle',
