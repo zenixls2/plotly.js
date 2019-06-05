@@ -12,6 +12,7 @@ var Lib = require('../../lib');
 var attributes = require('./attributes');
 var handleDomainDefaults = require('../../plots/domain').defaults;
 var Template = require('../../plot_api/plot_template');
+var handleArrayContainerDefaults = require('../../plots/array_container_defaults');
 var cn = require('./constants.js');
 // var handleDomainDefaults = require('../../plots/domain').defaults;
 // var handleText = require('../bar/defaults').handleText;
@@ -26,8 +27,6 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     coerce('valueformat');
     coerce('min');
     coerce('max', 1.5 * traceOut.values[traceOut.values.length - 1]);
-    coerce('target');
-    if(traceOut.target > traceOut.max) traceOut.target = traceOut.max;
 
     handleDomainDefaults(traceOut, layout, coerce);
 
@@ -58,9 +57,14 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     coerceGauge('value.size', defaultValueSize);
 
     // Gauge steps
-    coerceGauge('target.color');
-    coerceGauge('target.line.color');
-    coerceGauge('target.line.width');
+    if(gaugeIn && gaugeIn.steps) {
+        handleArrayContainerDefaults(gaugeIn, gaugeOut, {
+            name: 'steps',
+            handleItemDefaults: targetDefaults
+        });
+    } else {
+        gaugeOut.steps = [];
+    }
 
     // Gauge thresholds
     coerceGauge('threshold.value');
@@ -73,6 +77,17 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
     coerce('delta.valueformat', traceOut.delta.showpercentage ? '2%' : traceOut.valueformat);
     coerce('delta.increasing.color');
     coerce('delta.decreasing.color');
+}
+
+function targetDefaults(valueIn, valueOut) {
+    function coerce(attr, dflt) {
+        return Lib.coerce(valueIn, valueOut, attributes.gauge.steps, attr, dflt);
+    }
+
+    coerce('color');
+    coerce('line.color');
+    coerce('line.width');
+    coerce('range');
 }
 
 module.exports = {

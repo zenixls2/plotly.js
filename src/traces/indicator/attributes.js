@@ -16,6 +16,7 @@ var extendDeep = require('../../lib/extend').extendDeep;
 var fontAttrs = require('../../plots/font_attributes');
 var colorAttrs = require('../../components/color/attributes');
 var domainAttrs = require('../../plots/domain').attributes;
+var templatedArray = require('../../plot_api/plot_template').templatedArray;
 var cn = require('./constants.js');
 
 var textFontAttrs = fontAttrs({
@@ -27,7 +28,7 @@ var textFontAttrs = fontAttrs({
 delete(textFontAttrs.size); // TODO: relative size?
 
 // TODO: choose appropriate editType
-var gaugeArcAttr = {
+var gaugeBarAttrs = {
     color: {
         valType: 'color',
         editType: 'style',
@@ -61,6 +62,31 @@ var gaugeArcAttr = {
     },
     editType: 'calc'
 };
+
+var stepsAttrs = templatedArray('target', extendDeep({}, gaugeBarAttrs, {
+    range: {
+        valType: 'info_array',
+        role: 'info',
+        items: [
+            {valType: 'number', editType: 'axrange'},
+            {valType: 'number', editType: 'axrange'}
+        ],
+        editType: 'axrange',
+        // impliedEdits: {'autorange': false},
+        description: [
+            'Sets the range of this axis.',
+            'If the axis `type` is *log*, then you must take the log of your',
+            'desired range (e.g. to set the range from 1 to 100,',
+            'set the range from 0 to 2).',
+            'If the axis `type` is *date*, it should be date strings,',
+            'like date data, though Date objects and unix milliseconds',
+            'will be accepted and converted to strings.',
+            'If the axis `type` is *category*, it should be numbers,',
+            'using the scale where each category is assigned a serial',
+            'number from zero in the order it appears.'
+        ].join(' ')
+    }
+}));
 
 module.exports = {
     mode: {
@@ -105,15 +131,6 @@ module.exports = {
             'Sets the maximum value of the gauge.'
         ].join(' ')
     },
-    target: {
-        valType: 'number',
-        editType: 'calc',
-        dflt: 0,
-        role: 'info',
-        description: [
-            'Sets a target value.'
-        ].join(' ')
-    },
 
     // position
     domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
@@ -155,7 +172,7 @@ module.exports = {
             editType: 'legend',
             description: 'Sets the width (in px) of the border enclosing the gauge.'
         },
-        value: extendDeep({}, gaugeArcAttr, {
+        value: extendDeep({}, gaugeBarAttrs, {
             color: {dflt: 'green'},
             size: {
                 valType: 'number',
@@ -171,11 +188,7 @@ module.exports = {
                 'Set the appearance of the gauge\'s value'
             ].join(' ')
         }),
-        target: extendFlat({}, gaugeArcAttr, {
-            description: [
-                'Set the appearance of the gauge\'s target'
-            ].join(' ')
-        }),
+        steps: stepsAttrs,
         threshold: {
             color: {
                 valType: 'color',

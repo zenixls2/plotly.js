@@ -7,7 +7,6 @@
     "type": "indicator",
     "mode": "bignumber+gauge",
     "max": 300,
-    "target": 150,
     "gauge": {
       "shape": "bullet",
       "threshold": {
@@ -19,9 +18,13 @@
       "bgcolor": "rgba(0, 0, 0, 0.1)",
       "borderwidth": 2,
       "bordercolor": "rgba(0, 0, 0, 0.1)",
-      "target": {
+      "steps": [{
+        "range": [0, 150],
+        "color": "rgba(0, 0, 0, 0.5)"
+      }, {
+        "range": [150, 250],
         "color": "rgba(0, 0, 0, 0.25)"
-      },
+      }],
       "value": {
         "color": "rgba(0, 0, 0, 1)"
       }
@@ -47,9 +50,13 @@
       "bgcolor": "rgba(0, 0, 0, 0.1)",
       "borderwidth": 2,
       "bordercolor": "rgba(0, 0, 0, 0.1)",
-      "target": {
+      "steps": [{
+        "range": [0, 25],
+        "color": "rgba(0, 0, 0, 0.5)"
+      }, {
+        "range": [25, 75],
         "color": "rgba(0, 0, 0, 0.25)"
-      },
+      }],
       "value": {
         "color": "rgba(0, 0, 0, 1)"
       }
@@ -64,7 +71,6 @@
     "type": "indicator",
     "mode": "bignumber+gauge",
     "max": 300,
-    "target": 150,
     "gauge": {
       "shape": "bullet",
       "threshold": {
@@ -76,9 +82,13 @@
       "bgcolor": "rgba(0, 0, 0, 0.1)",
       "borderwidth": 2,
       "bordercolor": "rgba(0, 0, 0, 0.1)",
-      "target": {
+      "steps": [{
+        "range": [0, 150],
+        "color": "rgba(0, 0, 0, 0.5)"
+      }, {
+        "range": [150, 250],
         "color": "rgba(0, 0, 0, 0.25)"
-      },
+      }],
       "value": {
         "color": "rgba(0, 0, 0, 1)"
       }

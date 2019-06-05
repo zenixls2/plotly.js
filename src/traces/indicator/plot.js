@@ -273,15 +273,18 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .style('stroke-width', trace.gauge.borderwidth);
             bgArc.exit().remove();
 
-            // Draw target
-            var thetaTarget = -theta;
-            if(trace.target) thetaTarget = valueToAngle(trace.target);
-            var targetArc = gauge.selectAll('g.targetArc').data(cd);
+            // Draw steps
+            var targetArc = gauge.selectAll('g.targetArc').data(trace.gauge.steps);
             targetArc.enter().append('g').classed('targetArc', true).append('path');
-            targetArc.select('path').attr('d', arcPath.endAngle(thetaTarget))
-                  .style('fill', trace.gauge.target.color)
-                  .style('stroke', trace.gauge.target.line.color)
-                  .style('stroke-width', trace.gauge.target.line.width);
+            targetArc.select('path')
+                  .attr('d', function(d) {
+                      return arcPath
+                        .startAngle(valueToAngle(d.range[0]))
+                        .endAngle(valueToAngle(d.range[1]))();
+                  })
+                  .style('fill', function(d) { return d.color;})
+                  .style('stroke', function(d) { return d.line.color;})
+                  .style('stroke-width', function(d) { return d.line.width;});
             targetArc.exit().remove();
 
             // Draw foreground with transition
@@ -420,6 +423,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, bulletWidth * size.w]);
 
             // TODO: prevent rect width from being negative
+            // TODO: prevent rect position to overflow background
             var bgBullet = bullet.selectAll('g.bgBullet').data(cd);
             bgBullet.enter().append('g').classed('bgBullet', true).append('rect');
             bgBullet.select('rect')
@@ -430,14 +434,15 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                   .style('stroke-width', trace.gauge.borderwidth);
             bgBullet.exit().remove();
 
-            var targetBullet = bullet.selectAll('g.targetBullet').data(cd);
+            var targetBullet = bullet.selectAll('g.targetBullet').data(trace.gauge.steps);
             targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
             targetBullet.select('rect')
-                  .attr('width', scale(trace.target))
+                  .attr('width', function(d) { return scale(d.range[1] - d.range[0]);})
+                  .attr('x', function(d) { return scale(d.range[0]);})
                   .attr('height', bulletHeight)
-                  .style('fill', trace.gauge.target.color)
-                  .style('stroke', trace.gauge.target.line.color)
-                  .style('stroke-width', trace.gauge.target.line.width);
+                  .style('fill', function(d) { return d.color;})
+                  .style('stroke', function(d) { return d.line.color;})
+                  .style('stroke-width', function(d) { return d.line.width;});
             targetBullet.exit().remove();
 
             var fgBullet = bullet.selectAll('g.fgBullet').data(cd);
