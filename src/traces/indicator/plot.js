@@ -117,16 +117,14 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
 
         if(!hasGauge) {
             // when no gauge, we are only constrained by figure size
+            bignumberFontSize = Math.min(size.w / (fmt(trace.max).length), size.h / 3);
             if(hasBigNumber) {
                 // Center the text vertically
-                bignumberFontSize = Math.min(size.w / (fmt(trace.max).length), size.h / 3);
                 deltaFontSize = 0.5 * bignumberFontSize;
                 bignumberY = size.t + size.h / 2;
                 deltaY = Math.min(size.t + size.h / 2 + bignumberFontSize / 2 + deltaFontSize / 2);
             } else {
-                bignumberFontSize = Math.min(size.w / (fmt(trace.max).length + 1), size.h / 3);
                 deltaFontSize = bignumberFontSize;
-                bignumberY = 0;
                 deltaY = size.t + size.h / 2;
             }
             titleFontSize = 0.35 * bignumberFontSize;
@@ -332,91 +330,6 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             threshold.exit().remove();
 
             // Draw bullet
-            // if(isBullet) {
-            //     var mockFigure = {
-            //         data: [],
-            //         layout: {
-            //             xaxis: {
-            //                 type: 'linear',
-            //                 domain: [0, 1],
-            //                 range: [trace.min, trace.max],
-            //             },
-            //             yaxis: {
-            //                 type: 'linear',
-            //                 range: [-0.5, 0.5]
-            //             },
-            //             width: fullLayout.width,
-            //             height: 25,
-            //             margin: { t: 0, b: 0, l: size.l, r: size.r },
-            //             paper_bgcolor: 'rgba(0, 0, 0, 0)'
-            //         },
-            //         _context: gd._context
-            //     };
-            //
-            //     Plots.supplyDefaults(mockFigure);
-            //
-            //     var xa = mockFigure._fullLayout.xaxis;
-            //     var ya = mockFigure._fullLayout.yaxis;
-            //
-            //     xa.clearCalc();
-            //     xa.setScale();
-            //     ya.clearCalc();
-            //     ya.setScale();
-            //
-            //     var plotinfo = {
-            //         xaxis: xa,
-            //         yaxis: ya
-            //     };
-            //     var opts = {
-            //         mode: 'overlay'
-            //     };
-            //     var barWidth = -0.5;
-            //     var cdBarModule = [[{
-            //         i: 0,
-            //         text: 'max',
-            //         mlw: 1,
-            //         s: 0,
-            //         p: 0,
-            //         p0: -barWidth,
-            //         p1: barWidth,
-            //         s0: 0,
-            //         s1: trace.max,
-            //         trace: {orientation: 'h', marker: {color: 'red'}}
-            //     }, {
-            //         i: 0,
-            //         text: 'value',
-            //         mlw: 1,
-            //         p: 0,
-            //         s: trace.target,
-            //         p0: -barWidth,
-            //         p1: barWidth,
-            //         s0: 0,
-            //         s1: trace.target,
-            //         trace: {orientation: 'h', marker: {color: 'red'}}
-            //     }, {
-            //         i: 0,
-            //         text: 'value',
-            //         mlw: 1,
-            //         p: 0,
-            //         s: cd0.y,
-            //         p0: -0.75 * barWidth,
-            //         p1: 0.75 * barWidth,
-            //         s0: 0,
-            //         s1: cd0.y,
-            //         trace: {orientation: 'h', marker: {color: 'red'}}
-            //     }]];
-            //     barPlot(gd, plotinfo, cdBarModule, fullLayout._cartesianlayer, opts);
-            //
-            //     var bars = fullLayout._cartesianlayer.select('.bars');
-            //     bars.attr('transform', 'translate(' + size.l + ',' + 0.95 * size.h + ')');
-            //     bars.selectAll('path').each(function(d, i) {
-            //         var colors = {2: 'green', 1: 'rgba(255, 255, 0, 0.5)', 0: 'rgba(255, 255, 255, 0.25)'};
-            //         d3.select(this).style('fill', colors[i]);
-            //     });
-            //
-            //     Axes.drawOne(gd, xa);
-            //     Axes.drawOne(gd, ya);
-            // }
             data = cd.filter(function() {return isBullet;});
             var innerBulletHeight = trace.gauge.value.size * bulletHeight;
             var bulletVerticalMargin = bignumberY - bulletHeight / 2;
@@ -478,7 +391,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             threshold.exit().remove();
 
             // Draw x axis and ticks
-            // TODO: reuse axis logic
+            // TODO: reuse axis logic, draw axis for angular gauge
             var xaxis = bullet.selectAll('g.xaxislayer-above').data(cd);
             xaxis.enter().append('g').classed('xaxislayer-above', true);
             var ticksPos = [trace.min, trace.max];
@@ -521,3 +434,90 @@ function arcTween(arc, endAngle, newAngle) {
         };
     };
 }
+
+// Draw bullet
+// if(isBullet) {
+//     var mockFigure = {
+//         data: [],
+//         layout: {
+//             xaxis: {
+//                 type: 'linear',
+//                 domain: [0, 1],
+//                 range: [trace.min, trace.max],
+//             },
+//             yaxis: {
+//                 type: 'linear',
+//                 range: [-0.5, 0.5]
+//             },
+//             width: fullLayout.width,
+//             height: 25,
+//             margin: { t: 0, b: 0, l: size.l, r: size.r },
+//             paper_bgcolor: 'rgba(0, 0, 0, 0)'
+//         },
+//         _context: gd._context
+//     };
+//
+//     Plots.supplyDefaults(mockFigure);
+//
+//     var xa = mockFigure._fullLayout.xaxis;
+//     var ya = mockFigure._fullLayout.yaxis;
+//
+//     xa.clearCalc();
+//     xa.setScale();
+//     ya.clearCalc();
+//     ya.setScale();
+//
+//     var plotinfo = {
+//         xaxis: xa,
+//         yaxis: ya
+//     };
+//     var opts = {
+//         mode: 'overlay'
+//     };
+//     var barWidth = -0.5;
+//     var cdBarModule = [[{
+//         i: 0,
+//         text: 'max',
+//         mlw: 1,
+//         s: 0,
+//         p: 0,
+//         p0: -barWidth,
+//         p1: barWidth,
+//         s0: 0,
+//         s1: trace.max,
+//         trace: {orientation: 'h', marker: {color: 'red'}}
+//     }, {
+//         i: 0,
+//         text: 'value',
+//         mlw: 1,
+//         p: 0,
+//         s: trace.target,
+//         p0: -barWidth,
+//         p1: barWidth,
+//         s0: 0,
+//         s1: trace.target,
+//         trace: {orientation: 'h', marker: {color: 'red'}}
+//     }, {
+//         i: 0,
+//         text: 'value',
+//         mlw: 1,
+//         p: 0,
+//         s: cd0.y,
+//         p0: -0.75 * barWidth,
+//         p1: 0.75 * barWidth,
+//         s0: 0,
+//         s1: cd0.y,
+//         trace: {orientation: 'h', marker: {color: 'red'}}
+//     }]];
+//     barPlot(gd, plotinfo, cdBarModule, fullLayout._cartesianlayer, opts);
+//
+//     var bars = fullLayout._cartesianlayer.select('.bars');
+//     bars.attr('transform', 'translate(' + size.l + ',' + 0.95 * size.h + ')');
+//     bars.selectAll('path').each(function(d, i) {
+//         var colors = {2: 'green', 1: 'rgba(255, 255, 0, 0.5)', 0: 'rgba(255, 255, 255, 0.25)'};
+//         d3.select(this).style('fill', colors[i]);
+//     });
+//
+//     Axes.drawOne(gd, xa);
+//     Axes.drawOne(gd, ya);
+// }
