@@ -3,7 +3,7 @@
     "domain": {
       "y": [0, 0.33]
     },
-    "name": "<b>Revenue</b><br><span style='color: gray; font-size:0.8em'>U.S. $ (1,000s)</span>",
+    "title": {"text": "<b>Revenue</b><br><span style='color: gray; font-size:0.8em'>U.S. $ (1,000s)</span>"},
     "type": "indicator",
     "mode": "bignumber+gauge",
     "max": 300,
@@ -34,7 +34,7 @@
     "domain": {
       "y": [0.33, 0.66]
     },
-    "name": "<b>Profit</b><br><span style='color: gray; font-size:0.8em'>%</span>",
+    "title": {"text": "<b>Profit</b><br><span style='color: gray; font-size:0.8em'>%</span>"},
     "type": "indicator",
     "mode": "bignumber+gauge",
     "max": 100,
@@ -67,7 +67,7 @@
     "domain": {
       "y": [0.66, 1]
     },
-    "name": "<b>Avg Order Size</b><br><span style='color: gray; font-size:0.8em'>U.S. $</span>",
+    "title": {"text" :"<b>Avg Order Size</b><br><span style='color: gray; font-size:0.8em'>U.S. $</span>"},
     "type": "indicator",
     "mode": "bignumber+gauge",
     "max": 300,

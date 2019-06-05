@@ -169,8 +169,8 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 'text-anchor': isBullet ? 'end' : 'middle',
                 'alignment-baseline': 'central'
             })
-            .text(trace.name)
-            .call(Drawing.font, trace.number.font)
+            .text(trace.title.text)
+            .call(Drawing.font, trace.title.font)
             .style('font-size', labelFontSize)
             .call(svgTextUtils.convertToTspans, gd);
             name.exit().remove();

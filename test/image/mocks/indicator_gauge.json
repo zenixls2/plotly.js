@@ -5,7 +5,7 @@
       "y": [0, 1]
     },
     "values": [400, 450],
-    "name": "Speed",
+    "title": {"text": "Speed"},
     "type": "indicator",
     "mode": "gauge+bignumber+delta",
     "ticker": {
@@ -36,7 +36,7 @@
       "y": [0, 0.666]
     },
     "values": [400, 450],
-    "name": "Speed",
+    "title": {"text": "Speed"},
     "type": "indicator",
     "mode": "gauge+bignumber+delta",
     "ticker": {
@@ -67,7 +67,7 @@
       "y": [0, 0.333]
     },
     "values": [400, 450],
-    "name": "Speed",
+    "title": {"text": "Speed"},
     "type": "indicator",
     "mode": "gauge+bignumber+delta",
     "ticker": {

@@ -22,8 +22,7 @@ var cn = require('./constants.js');
 var textFontAttrs = fontAttrs({
     editType: 'plot',
     arrayOk: true,
-    colorEditType: 'plot',
-    description: 'Sets the font used for `textinfo`.'
+    colorEditType: 'plot'
 });
 delete(textFontAttrs.size); // TODO: relative size?
 
@@ -144,7 +143,21 @@ module.exports = {
 
     // position
     domain: domainAttrs({name: 'indicator', trace: true, editType: 'calc'}),
-
+    title: {
+        text: {
+            valType: 'string',
+            role: 'info',
+            description: [
+                'Sets the title of this indicator.'
+            ].join(' ')
+        },
+        font: extendFlat({}, textFontAttrs, {
+            description: [
+                'Set the font used to display the title'
+            ].join(' ')
+        }),
+        editType: 'ticks'
+    },
     number: {
         font: extendFlat({}, textFontAttrs, {
             description: [

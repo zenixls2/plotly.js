@@ -36,8 +36,11 @@ function supplyDefaults(traceIn, traceOut, defaultColor, layout) {
 
     coerce('delta.font.color', traceOut.number.font.color);
     coerce('delta.font.family', traceOut.number.font.family);
-    // Lib.coerceFont(coerce, 'font', layout.font);
 
+    coerce('title.font.color', traceOut.number.font.color);
+    coerce('title.font.family', traceOut.number.font.family);
+    coerce('title.text');
+    // Lib.coerceFont(coerce, 'font', layout.font);
 
     // gauge attributes
     var gaugeIn = traceIn.gauge;
