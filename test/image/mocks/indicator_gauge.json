@@ -106,7 +106,41 @@
     "font": {
       "color": "white",
       "family": "Arial"
-    }
+    },
+    "shapes": [{
+      "type": "rect",
+      "x0": 0,
+      "x1": 0.474,
+      "y0": 0,
+      "y1": 1,
+      "line": {
+        "color": "rgba(255, 255, 255, 0.35)",
+        "width": 1
+      },
+      "fill": "rgba(0,0,0,0)"
+    }, {
+      "type": "rect",
+      "x0": 0.474,
+      "x1": 0.789,
+      "y0": 0.33,
+      "y1": 1,
+      "line": {
+        "color": "rgba(255, 255, 255, 0.35)",
+        "width": 1
+      },
+      "fill": "rgba(0,0,0,0)"
+    },{
+      "type": "rect",
+      "x0": 0.789,
+      "x1": 1.0,
+      "y0": 0.666,
+      "y1": 1,
+      "line": {
+        "color": "rgba(255, 255, 255, 0.35)",
+        "width": 1
+      },
+      "fill": "rgba(0,0,0,0)"
+    }]
   },
   "config": {
     "responsive": true

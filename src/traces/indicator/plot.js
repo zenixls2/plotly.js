@@ -213,6 +213,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             number.exit().remove();
 
             // delta
+            // TODO: text animation for delta
             data = cd.filter(function() {return hasDelta;});
             var delta = d3.select(this).selectAll('text.delta').data(data);
             delta.enter().append('text').classed('delta', true);
@@ -343,7 +344,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             var scale = d3.scale.linear().domain([trace.min, trace.max]).range([0, bulletWidth * size.w]);
 
             // TODO: prevent rect width from being negative
-            // TODO: prevent rect position to overflow background
+            // TODO: prevent rect position from overflowing
             var targetBullet = bullet.selectAll('g.targetBullet').data([bg].concat(trace.gauge.steps));
             targetBullet.enter().append('g').classed('targetBullet', true).append('rect');
             targetBullet.select('rect')
