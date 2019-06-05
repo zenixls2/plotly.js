@@ -47,6 +47,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var cd0 = cd[0];
         var trace = cd0.trace;
 
+        // FIXME: I think the ydomain below is reversed
         // Domain size
         var domain = trace.domain;
         var size = Lib.extendFlat({}, fullLayout._size, {
@@ -103,7 +104,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
         var deltaVerticalMargin, deltaFontSize, deltaBaseline;
         var bulletHeight = Math.min(cn.bulletHeight, size.h / 2);
         var gaugeFontSize;
-        var labelFontSize;
+        var labelFontSize, labelY;
         var centerX = size.l + size.w / 2;
         bignumberX = centerX;
 
@@ -116,12 +117,13 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 bignumberVerticalMargin = size.t + size.h / 2;
                 deltaVerticalMargin = Math.min(size.t + size.h / 2 + mainFontSize / 2 + deltaFontSize / 2);
             } else {
-                mainFontSize = Math.min(size.w / (trace.max.toString().length + 2), size.h / 2);
+                mainFontSize = Math.min(size.w / (trace.max.toString().length + 2), size.h / 3);
                 deltaFontSize = mainFontSize;
                 bignumberVerticalMargin = 0;
                 deltaVerticalMargin = size.t + size.h / 2;
             }
             labelFontSize = 0.35 * mainFontSize;
+            labelY = size.t + Math.max(labelFontSize / 2, size.h / 5);
         } else {
             if(isAngular) {
                 bignumberVerticalMargin = size.t + size.h;
@@ -130,9 +132,10 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 mainFontSize = Math.min(2 * innerRadius / (trace.max.toString().length));
                 deltaFontSize = 0.35 * mainFontSize;
                 gaugeFontSize = Math.max(0.25 * mainFontSize, (radius - innerRadius) / 4);
-                labelFontSize = gaugeFontSize;
+                labelFontSize = 0.35 * mainFontSize;
                 deltaVerticalMargin = bignumberVerticalMargin + deltaFontSize;
                 if(!hasBigNumber) deltaBaseline = 'bottom';
+                labelY = size.t + Math.max(labelFontSize / 2, size.h / 2 - radius);
             }
             if(isBullet) {
                 // Center the text
@@ -143,6 +146,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
                 deltaFontSize = 0.5 * mainFontSize;
                 deltaVerticalMargin = bignumberVerticalMargin + mainFontSize / 2 + deltaFontSize;
                 labelFontSize = 0.4 * mainFontSize;
+                labelY = bignumberVerticalMargin;
             }
 
             if(!hasBigNumber) {
@@ -157,7 +161,7 @@ module.exports = function plot(gd, cdModule, transitionOpts, makeOnCompleteCallb
             name.enter().append('text').classed('name', true);
             name.attr({
                 x: isBullet ? size.l + 0.23 * size.w : centerX,
-                y: isBullet ? bignumberVerticalMargin : size.t + labelFontSize / 2,
+                y: labelY,
                 'text-anchor': isBullet ? 'end' : 'middle',
                 'alignment-baseline': 'central'
             })
