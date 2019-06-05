@@ -37,7 +37,6 @@ var gaugeBarAttrs = {
             'Sets the background color of the arc.'
         ].join(' ')
     },
-
     line: {
         color: {
             valType: 'color',
@@ -59,6 +58,17 @@ var gaugeBarAttrs = {
             ].join(' ')
         },
         editType: 'calc'
+    },
+    size: {
+        valType: 'number',
+        role: 'style',
+        min: 0,
+        max: 1,
+        dflt: 1,
+        editType: 'style',
+        description: [
+            'Sets the size of the bar as a fraction of total size.'
+        ].join(' ')
     },
     editType: 'calc'
 };
@@ -174,16 +184,6 @@ module.exports = {
         },
         value: extendDeep({}, gaugeBarAttrs, {
             color: {dflt: 'green'},
-            size: {
-                valType: 'number',
-                role: 'style',
-                min: 0,
-                max: 1,
-                editType: 'style',
-                description: [
-                    'Sets the size of the value bar as a fraction of total size.'
-                ].join(' ')
-            },
             description: [
                 'Set the appearance of the gauge\'s value'
             ].join(' ')

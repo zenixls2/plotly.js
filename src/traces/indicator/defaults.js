@@ -88,6 +88,7 @@ function targetDefaults(valueIn, valueOut) {
     coerce('line.color');
     coerce('line.width');
     coerce('range');
+    coerce('size');
 }
 
 module.exports = {
