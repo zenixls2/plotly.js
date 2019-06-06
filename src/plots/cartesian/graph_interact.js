@@ -58,6 +58,7 @@ exports.initInteractions = function initInteractions(gd) {
             maindrag.onmousemove = function(evt) {
                 // This is on `gd._fullLayout`, *not* fullLayout because the reference
                 // changes by the time this is called again.
+                if (!gd._fullLayout) return;
                 gd._fullLayout._rehover = function() {
                     if(gd._fullLayout._hoversubplot === subplot) {
                         Fx.hover(gd, evt, subplot);

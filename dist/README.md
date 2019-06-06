@@ -88,7 +88,7 @@ The main plotly.js bundle weights in at:
 
 | plotly.js | plotly.min.js | plotly.min.js + gzip | plotly-with-meta.js |
 |-----------|---------------|----------------------|---------------------|
-| 6.4 MB | 2.9 MB | 892.7 kB | 6.7 MB |
+| 6.4 MB | 2.9 MB | 892.8 kB | 6.7 MB |
 
 ## Partial bundles
 
@@ -157,7 +157,7 @@ The `cartesian` partial bundle contains trace modules `scatter`, `bar`, `box`, `
 
 | Raw size | Minified size | Minified + gzip size |
 |------|-----------------|------------------------|
-| 2.6 MB | 948.3 kB | 309.8 kB |
+| 2.6 MB | 948.6 kB | 309.9 kB |
 
 #### CDN links
 
@@ -203,7 +203,7 @@ The `geo` partial bundle contains trace modules `scatter`, `scattergeo` and `cho
 
 | Raw size | Minified size | Minified + gzip size |
 |------|-----------------|------------------------|
-| 2.3 MB | 845.4 kB | 278.9 kB |
+| 2.3 MB | 845.4 kB | 279 kB |
 
 #### CDN links
 
@@ -295,7 +295,7 @@ The `gl2d` partial bundle contains trace modules `scatter`, `scattergl`, `splom`
 
 | Raw size | Minified size | Minified + gzip size |
 |------|-----------------|------------------------|
-| 3.4 MB | 1.4 MB | 450.7 kB |
+| 3.4 MB | 1.4 MB | 450.8 kB |
 
 #### CDN links
 
@@ -387,7 +387,7 @@ The `finance` partial bundle contains trace modules `scatter`, `bar`, `histogram
 
 | Raw size | Minified size | Minified + gzip size |
 |------|-----------------|------------------------|
-| 2.5 MB | 893.2 kB | 290.2 kB |
+| 2.5 MB | 893.4 kB | 290.2 kB |
 
 #### CDN links
 

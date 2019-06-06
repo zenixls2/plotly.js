@@ -380,7 +380,7 @@ function plot(gd, data, layout, config) {
 
 function emitAfterPlot(gd) {
     var fullLayout = gd._fullLayout;
-
+    if (!fullLayout) return;
     if(fullLayout._redrawFromAutoMarginCount) {
         fullLayout._redrawFromAutoMarginCount--;
     } else {
@@ -2784,10 +2784,12 @@ function react(gd, data, layout, config) {
     }
 
     return plotDone.then(function() {
-        gd.emit('plotly_react', {
-            data: data,
-            layout: layout
-        });
+        if (gd.emit && typeof gd.emit === 'function') {
+            gd.emit('plotly_react', {
+                data: data,
+                layout: layout
+            });
+        }
 
         return gd;
     });

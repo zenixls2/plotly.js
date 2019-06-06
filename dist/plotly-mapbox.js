@@ -42198,7 +42198,7 @@ function plot(gd, data, layout, config) {
 
 function emitAfterPlot(gd) {
     var fullLayout = gd._fullLayout;
-
+    if (!fullLayout) return;
     if(fullLayout._redrawFromAutoMarginCount) {
         fullLayout._redrawFromAutoMarginCount--;
     } else {
@@ -44602,10 +44602,12 @@ function react(gd, data, layout, config) {
     }
 
     return plotDone.then(function() {
-        gd.emit('plotly_react', {
-            data: data,
-            layout: layout
-        });
+        if (gd.emit && typeof gd.emit === 'function') {
+            gd.emit('plotly_react', {
+                data: data,
+                layout: layout
+            });
+        }
 
         return gd;
     });
@@ -54979,6 +54981,7 @@ exports.initInteractions = function initInteractions(gd) {
             maindrag.onmousemove = function(evt) {
                 // This is on `gd._fullLayout`, *not* fullLayout because the reference
                 // changes by the time this is called again.
+                if (!gd._fullLayout) return;
                 gd._fullLayout._rehover = function() {
                     if(gd._fullLayout._hoversubplot === subplot) {
                         Fx.hover(gd, evt, subplot);

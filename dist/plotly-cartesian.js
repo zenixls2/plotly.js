@@ -42202,7 +42202,7 @@ function plot(gd, data, layout, config) {
 
 function emitAfterPlot(gd) {
     var fullLayout = gd._fullLayout;
-
+    if (!fullLayout) return;
     if(fullLayout._redrawFromAutoMarginCount) {
         fullLayout._redrawFromAutoMarginCount--;
     } else {
@@ -44606,10 +44606,12 @@ function react(gd, data, layout, config) {
     }
 
     return plotDone.then(function() {
-        gd.emit('plotly_react', {
-            data: data,
-            layout: layout
-        });
+        if (gd.emit && typeof gd.emit === 'function') {
+            gd.emit('plotly_react', {
+                data: data,
+                layout: layout
+            });
+        }
 
         return gd;
     });
@@ -54983,6 +54985,7 @@ exports.initInteractions = function initInteractions(gd) {
             maindrag.onmousemove = function(evt) {
                 // This is on `gd._fullLayout`, *not* fullLayout because the reference
                 // changes by the time this is called again.
+                if (!gd._fullLayout) return;
                 gd._fullLayout._rehover = function() {
                     if(gd._fullLayout._hoversubplot === subplot) {
                         Fx.hover(gd, evt, subplot);
@@ -73223,7 +73226,7 @@ exports.plot = function plot(gd, plotinfo, cdcontours, contourLayer) {
         // draw everything
         makeBackground(plotGroup, perimeter, contours);
         makeFills(plotGroup, fillPathinfo, perimeter, contours);
-        makeLinesAndLabels(plotGroup, pathinfo, gd, cd0, contours, perimeter);
+        makeLinesAndLabels(plotGroup, pathinfo, gd, cd0, contours);
         clipGaps(plotGroup, plotinfo, gd, cd0, perimeter);
     });
 };
@@ -73362,7 +73365,7 @@ function joinAllPaths(pi, perimeter) {
     return fullpath;
 }
 
-function makeLinesAndLabels(plotgroup, pathinfo, gd, cd0, contours, perimeter) {
+function makeLinesAndLabels(plotgroup, pathinfo, gd, cd0, contours) {
     var lineContainer = Lib.ensureSingle(plotgroup, 'g', 'contourlines');
     var showLines = contours.showlines !== false;
     var showLabels = contours.showlabels;
@@ -73403,10 +73406,14 @@ function makeLinesAndLabels(plotgroup, pathinfo, gd, cd0, contours, perimeter) {
         var yLen = ya._length;
         var xRng = xa.range;
         var yRng = ya.range;
-        var x0 = Math.max(perimeter[0][0], 0);
-        var x1 = Math.min(perimeter[2][0], xLen);
-        var y0 = Math.max(perimeter[0][1], 0);
-        var y1 = Math.min(perimeter[2][1], yLen);
+        var xMin = Lib.aggNums(Math.min, null, cd0.x);
+        var xMax = Lib.aggNums(Math.max, null, cd0.x);
+        var yMin = Lib.aggNums(Math.min, null, cd0.y);
+        var yMax = Lib.aggNums(Math.max, null, cd0.y);
+        var x0 = Math.max(xa.c2p(xMin, true), 0);
+        var x1 = Math.min(xa.c2p(xMax, true), xLen);
+        var y0 = Math.max(ya.c2p(yMax, true), 0);
+        var y1 = Math.min(ya.c2p(yMin, true), yLen);
 
         // visible bounds of the contour trace (and the midpoints, to
         // help with cost calculations)
@@ -76306,9 +76313,6 @@ function calcAllAutoBins(gd, trace, pa, mainData, _overlayEdgeCase) {
             }
         }
 
-        // TODO how does work with bingroup ????
-        // - https://github.com/plotly/plotly.js/issues/3881
-        //
         // Edge case: single-valued histogram overlaying others
         // Use them all together to calculate the bin size for the single-valued one
         if(isOverlay && !Registry.traceIs(trace, '2dMap') && newBinSpec._dataSpan === 0 &&
@@ -76413,22 +76417,27 @@ function calcAllAutoBins(gd, trace, pa, mainData, _overlayEdgeCase) {
  * Returns the binSpec for the trace that sparked all this
  */
 function handleSingleValueOverlays(gd, trace, pa, mainData, binAttr) {
+    var fullLayout = gd._fullLayout;
     var overlaidTraceGroup = getConnectedHistograms(gd, trace);
     var pastThisTrace = false;
     var minSize = Infinity;
     var singleValuedTraces = [trace];
-    var i, tracei;
+    var i, tracei, binOpts;
 
     // first collect all the:
     // - min bin size from all multi-valued traces
     // - single-valued traces
     for(i = 0; i < overlaidTraceGroup.length; i++) {
         tracei = overlaidTraceGroup[i];
-        if(tracei === trace) pastThisTrace = true;
-        else if(!pastThisTrace) {
-            // This trace has already had its autobins calculated
-            // (so must not have been single-valued).
-            minSize = Math.min(minSize, tracei[binAttr].size);
+
+        if(tracei === trace) {
+            pastThisTrace = true;
+        } else if(!pastThisTrace) {
+            // This trace has already had its autobins calculated, so either:
+            // - it is part of a bingroup
+            // - it is NOT a single-valued trace
+            binOpts = fullLayout._histogramBinOpts[tracei['_' + mainData + 'bingroup']];
+            minSize = Math.min(minSize, binOpts.size || tracei[binAttr].size);
         } else {
             var resulti = calcAllAutoBins(gd, tracei, pa, mainData, true);
             var binSpeci = resulti[0];
@@ -76471,11 +76480,16 @@ function handleSingleValueOverlays(gd, trace, pa, mainData, binAttr) {
         tracei = singleValuedTraces[i];
         var calendar = tracei[mainData + 'calendar'];
 
-        tracei._input[binAttr] = tracei[binAttr] = {
+        var newBins = {
             start: pa.c2r(dataVals[i] - minSize / 2, 0, calendar),
             end: pa.c2r(dataVals[i] + minSize / 2, 0, calendar),
             size: minSize
         };
+
+        tracei._input[binAttr] = tracei[binAttr] = newBins;
+
+        binOpts = fullLayout._histogramBinOpts[tracei['_' + mainData + 'bingroup']];
+        if(binOpts) Lib.extendFlat(binOpts, newBins);
     }
 
     return trace[binAttr];

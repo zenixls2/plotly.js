@@ -42136,7 +42136,7 @@ function plot(gd, data, layout, config) {
 
 function emitAfterPlot(gd) {
     var fullLayout = gd._fullLayout;
-
+    if (!fullLayout) return;
     if(fullLayout._redrawFromAutoMarginCount) {
         fullLayout._redrawFromAutoMarginCount--;
     } else {
@@ -44540,10 +44540,12 @@ function react(gd, data, layout, config) {
     }
 
     return plotDone.then(function() {
-        gd.emit('plotly_react', {
-            data: data,
-            layout: layout
-        });
+        if (gd.emit && typeof gd.emit === 'function') {
+            gd.emit('plotly_react', {
+                data: data,
+                layout: layout
+            });
+        }
 
         return gd;
     });
@@ -54917,6 +54919,7 @@ exports.initInteractions = function initInteractions(gd) {
             maindrag.onmousemove = function(evt) {
                 // This is on `gd._fullLayout`, *not* fullLayout because the reference
                 // changes by the time this is called again.
+                if (!gd._fullLayout) return;
                 gd._fullLayout._rehover = function() {
                     if(gd._fullLayout._hoversubplot === subplot) {
                         Fx.hover(gd, evt, subplot);
@@ -72021,9 +72024,6 @@ function calcAllAutoBins(gd, trace, pa, mainData, _overlayEdgeCase) {
             }
         }
 
-        // TODO how does work with bingroup ????
-        // - https://github.com/plotly/plotly.js/issues/3881
-        //
         // Edge case: single-valued histogram overlaying others
         // Use them all together to calculate the bin size for the single-valued one
         if(isOverlay && !Registry.traceIs(trace, '2dMap') && newBinSpec._dataSpan === 0 &&
@@ -72128,22 +72128,27 @@ function calcAllAutoBins(gd, trace, pa, mainData, _overlayEdgeCase) {
  * Returns the binSpec for the trace that sparked all this
  */
 function handleSingleValueOverlays(gd, trace, pa, mainData, binAttr) {
+    var fullLayout = gd._fullLayout;
     var overlaidTraceGroup = getConnectedHistograms(gd, trace);
     var pastThisTrace = false;
     var minSize = Infinity;
     var singleValuedTraces = [trace];
-    var i, tracei;
+    var i, tracei, binOpts;
 
     // first collect all the:
     // - min bin size from all multi-valued traces
     // - single-valued traces
     for(i = 0; i < overlaidTraceGroup.length; i++) {
         tracei = overlaidTraceGroup[i];
-        if(tracei === trace) pastThisTrace = true;
-        else if(!pastThisTrace) {
-            // This trace has already had its autobins calculated
-            // (so must not have been single-valued).
-            minSize = Math.min(minSize, tracei[binAttr].size);
+
+        if(tracei === trace) {
+            pastThisTrace = true;
+        } else if(!pastThisTrace) {
+            // This trace has already had its autobins calculated, so either:
+            // - it is part of a bingroup
+            // - it is NOT a single-valued trace
+            binOpts = fullLayout._histogramBinOpts[tracei['_' + mainData + 'bingroup']];
+            minSize = Math.min(minSize, binOpts.size || tracei[binAttr].size);
         } else {
             var resulti = calcAllAutoBins(gd, tracei, pa, mainData, true);
             var binSpeci = resulti[0];
@@ -72186,11 +72191,16 @@ function handleSingleValueOverlays(gd, trace, pa, mainData, binAttr) {
         tracei = singleValuedTraces[i];
         var calendar = tracei[mainData + 'calendar'];
 
-        tracei._input[binAttr] = tracei[binAttr] = {
+        var newBins = {
             start: pa.c2r(dataVals[i] - minSize / 2, 0, calendar),
             end: pa.c2r(dataVals[i] + minSize / 2, 0, calendar),
             size: minSize
         };
+
+        tracei._input[binAttr] = tracei[binAttr] = newBins;
+
+        binOpts = fullLayout._histogramBinOpts[tracei['_' + mainData + 'bingroup']];
+        if(binOpts) Lib.extendFlat(binOpts, newBins);
     }
 
     return trace[binAttr];
