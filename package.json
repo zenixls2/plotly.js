@@ -1,6 +1,6 @@
 {
   "name": "plotly.js",
-  "version": "1.48.1",
+  "version": "1.48.3",
   "description": "The open source javascript graphing library that powers plotly",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -69,10 +69,9 @@
     "d3-sankey-circular": "0.33.0",
     "delaunay-triangulate": "^1.1.6",
     "es6-promise": "^3.0.2",
-    "fast-isnumeric": "^1.1.2",
-    "font-atlas-sdf": "^1.3.3",
+    "fast-isnumeric": "^1.1.3",
     "gl-cone3d": "^1.3.1",
-    "gl-contour2d": "^1.1.5",
+    "gl-contour2d": "^1.1.6",
     "gl-error3d": "^1.0.15",
     "gl-heatmap2d": "^1.0.5",
     "gl-line3d": "^1.1.11",
@@ -94,7 +93,7 @@
     "matrix-camera-controller": "^2.1.3",
     "mouse-change": "^1.4.0",
     "mouse-event-offset": "^3.0.2",
-    "mouse-wheel": "^1.0.2",
+    "mouse-wheel": "^1.2.0",
     "ndarray": "^1.0.18",
     "ndarray-fill": "^1.0.2",
     "ndarray-homography": "^1.0.0",
@@ -111,7 +110,7 @@
     "strongly-connected-components": "^1.0.1",
     "superscript-text": "^1.0.0",
     "svg-path-sdf": "^1.1.3",
-    "tinycolor2": "^1.3.0",
+    "tinycolor2": "^1.4.1",
     "topojson-client": "^2.1.0",
     "webgl-context": "^2.2.0",
     "world-calendars": "^1.0.3"
@@ -126,12 +125,12 @@
     "derequire": "^2.0.6",
     "ecstatic": "^3.3.2",
     "eslint": "^5.16.0",
-    "falafel": "^2.0.0",
+    "falafel": "^2.1.0",
     "fs-extra": "^2.0.0",
-    "fuse.js": "^3.4.4",
+    "fuse.js": "^3.4.5",
     "glob": "^7.1.4",
-    "gzip-size": "^5.1.0",
-    "image-size": "^0.6.3",
+    "gzip-size": "^5.1.1",
+    "image-size": "^0.7.4",
     "into-stream": "^4.0.0",
     "jasmine-core": "^2.99.1",
     "jsdom": "^11.12.0",
@@ -160,6 +159,6 @@
     "through2": "^3.0.1",
     "true-case-path": "^1.0.3",
     "watchify": "^3.11.1",
-    "xml2js": "^0.4.16"
+    "xml2js": "^0.4.19"
   }
 }
